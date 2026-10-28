@@ -97,6 +97,31 @@ def save_json(path, data):
     try:
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=4, ensure_ascii=False)
+        
+        # Masaüstü Tweak ve Admin Paneli ile Tam Eşitleme
+        if path == KEYS_DB_PATH:
+            extra_targets = [
+                os.path.join(PARENT_DIR, "admin_keys_db.json"),
+                os.path.join(r"C:\Users\proog\Desktop", "admin_keys_db.json")
+            ]
+            for t in extra_targets:
+                if os.path.exists(os.path.dirname(t)):
+                    try:
+                        with open(t, "w", encoding="utf-8") as ef:
+                            json.dump(data, ef, indent=4, ensure_ascii=False)
+                    except: pass
+        elif path == VALID_KEYS_PATH:
+            extra_targets = [
+                os.path.join(PARENT_DIR, "valid_keys.json"),
+                os.path.join(r"C:\Users\proog\Desktop", "valid_keys.json")
+            ]
+            for t in extra_targets:
+                if os.path.exists(os.path.dirname(t)):
+                    try:
+                        with open(t, "w", encoding="utf-8") as ef:
+                            json.dump(data, ef, indent=4, ensure_ascii=False)
+                    except: pass
+
         return True
     except Exception as e:
         print(f"[JSON SAVE ERROR] {path}: {e}")

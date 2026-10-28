@@ -9,7 +9,7 @@
     },
     "JWW7G-8Y0EI-450GX-CZLM6-XDWYN": {
         "plan": "1month",
-        "plan_label": "1 Aylık (30 Gün)",
+        "plan_label": "1 Ayl\u0131k (30 G\u00fcn)",
         "duration_days": 30,
         "created_at": "23.10.2026 02:23:18",
         "status": "unused",
@@ -18,7 +18,7 @@
     },
     "XHX9W-2JQHZ-LS6UH-ESPYK-XBYL1": {
         "plan": "1month",
-        "plan_label": "1 Aylık (30 Gün)",
+        "plan_label": "1 Ayl\u0131k (30 G\u00fcn)",
         "duration_days": 30,
         "created_at": "23.10.2026 02:23:18",
         "status": "unused",
@@ -27,7 +27,7 @@
     },
     "7WVV8-HA6H1-QTWEF-XJLP1-514VB": {
         "plan": "1week",
-        "plan_label": "1 Haftalık (7 Gün)",
+        "plan_label": "1 Haftal\u0131k (7 G\u00fcn)",
         "duration_days": 7,
         "created_at": "23.10.2026 02:30:45",
         "status": "unused",
@@ -36,7 +36,7 @@
     },
     "IZVE2-HGYFW-V8UGK-YT4EM-U9AGA": {
         "plan": "1day",
-        "plan_label": "1 Günlük",
+        "plan_label": "1 G\u00fcnl\u00fck",
         "duration_days": 1,
         "created_at": "23.10.2026 02:38:14",
         "status": "unused",
@@ -45,7 +45,7 @@
     },
     "RKAJL-CNRE3-3045Y-6GFY5-GSGUD": {
         "plan": "lifetime",
-        "plan_label": "Lifetime (Sınırsız)",
+        "plan_label": "Lifetime (S\u0131n\u0131rs\u0131z)",
         "duration_days": -1,
         "created_at": "23.10.2026 02:39:06",
         "status": "unused",
@@ -54,7 +54,7 @@
     },
     "W9E4Q-TPPEP-RLWHC-RP3U6-MH5UN": {
         "plan": "lifetime",
-        "plan_label": "Lifetime (Sınırsız)",
+        "plan_label": "Lifetime (S\u0131n\u0131rs\u0131z)",
         "duration_days": -1,
         "created_at": "24.10.2026 00:00:00",
         "status": "active",
@@ -65,7 +65,7 @@
     },
     "KJTLC-Z1QUN-F2QCA-94LYL-B4ROF": {
         "plan": "1month",
-        "plan_label": "1 Aylık (30 Gün)",
+        "plan_label": "1 Ayl\u0131k (30 G\u00fcn)",
         "duration_days": 30,
         "created_at": "24.10.2026 21:08:43",
         "status": "unused",
@@ -76,7 +76,7 @@
     },
     "YPNKV-M3ALV-HP3CT-9ZZPA-VXYYY": {
         "plan": "1month",
-        "plan_label": "1 Aylık (30 Gün)",
+        "plan_label": "1 Ayl\u0131k (30 G\u00fcn)",
         "duration_days": 30,
         "created_at": "24.10.2026 21:08:43",
         "status": "unused",
@@ -87,7 +87,7 @@
     },
     "TEST-KEY": {
         "plan": "lifetime",
-        "plan_label": "Lifetime (Sınırsız)",
+        "plan_label": "Lifetime (S\u0131n\u0131rs\u0131z)",
         "duration_days": -1,
         "created_at": "24.10.2026 21:08:47",
         "status": "unused",
@@ -98,7 +98,7 @@
     },
     "TEST-RESET-KEY": {
         "plan": "lifetime",
-        "plan_label": "Lifetime (Sınırsız)",
+        "plan_label": "Lifetime (S\u0131n\u0131rs\u0131z)",
         "duration_days": -1,
         "created_at": "24.10.2026 21:08:48",
         "status": "unused",
@@ -109,7 +109,7 @@
     },
     "NEW-KEY-TO-EXTEND": {
         "plan": "custom",
-        "plan_label": "30 Günlük Paket",
+        "plan_label": "30 G\u00fcnl\u00fck Paket",
         "duration_days": 30,
         "created_at": "24.10.2026 21:08:49",
         "status": "active",
@@ -120,7 +120,7 @@
     },
     "QJWPP-AT7EW-LU2NA-DCFFS-LJZHL": {
         "plan": "1week",
-        "plan_label": "1 Haftalık (7 Gün)",
+        "plan_label": "1 Haftal\u0131k (7 G\u00fcn)",
         "duration_days": 7,
         "created_at": "26.10.2026 00:50:09",
         "status": "unused",
@@ -450,7 +450,7 @@
     },
     "R4OUY-8B5IZ-16EM9-HSURM-UNQIB": {
         "plan": "1week",
-        "plan_label": "1 Haftalık (7 Gün)",
+        "plan_label": "1 Haftal\u0131k (7 G\u00fcn)",
         "duration_days": 7,
         "created_at": "28.10.2026 15:59:58",
         "status": "unused",
@@ -461,7 +461,7 @@
     },
     "VRL4G-N7TCS-Q6Y36-W9KPE-LLBXC": {
         "plan": "1week",
-        "plan_label": "1 Haftalık (7 Gün)",
+        "plan_label": "1 Haftal\u0131k (7 G\u00fcn)",
         "duration_days": 7,
         "created_at": "28.10.2026 16:01:23",
         "status": "unused",
@@ -471,12 +471,34 @@
     },
     "3Z37X-LS4YE-5FQP3-FMF3W-BRDGT": {
         "plan": "lifetime",
-        "plan_label": "Lifetime (Sınırsız)",
+        "plan_label": "Lifetime (S\u0131n\u0131rs\u0131z)",
         "duration_days": -1,
         "created_at": "28.10.2026 17:39:13",
         "status": "unused",
         "customer": "Test Key",
         "approved_by": "ogdovmesi",
         "approved_at": "28.10.2026 17:39:13"
+    },
+    "7YKST-KKLWR-FEI4L-IPRCP-L6XV7": {
+        "plan": "1week",
+        "plan_label": "1 Haftal\u0131k (7 G\u00fcn)",
+        "duration_days": 7,
+        "created_at": "28.10.2026 18:22:40",
+        "status": "unused",
+        "activated_at": null,
+        "expires_at": null,
+        "bound_hwid": null,
+        "hwid_resets": 0
+    },
+    "45WEB-Q4410-JAW0V-0397L-VDPOI": {
+        "plan": "1week",
+        "plan_label": "1 Haftal\u0131k (7 G\u00fcn)",
+        "duration_days": 7,
+        "created_at": "28.10.2026 18:22:42",
+        "status": "unused",
+        "activated_at": null,
+        "expires_at": null,
+        "bound_hwid": null,
+        "hwid_resets": 0
     }
 }

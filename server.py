@@ -154,6 +154,29 @@ def ensure_owner_seeded():
 
 ensure_owner_seeded()
 
+def resolve_key(raw_key, keys_db, valid_hashes=None):
+    k = (raw_key or "").strip().upper()
+    if not k:
+        return None
+    if k in keys_db:
+        return k
+    if valid_hashes and hashlib.sha256(k.encode("utf-8")).hexdigest() in valid_hashes:
+        return k
+
+    # Try fuzzy lookups (0 <-> O, 1 <-> I)
+    candidates = []
+    c1 = k.replace("0", "O")
+    c2 = k.replace("O", "0")
+    c3 = k.replace("1", "I")
+    c4 = k.replace("I", "1")
+    candidates.extend([c1, c2, c3, c4, c1.replace("1", "I"), c2.replace("1", "I"), c1.replace("I", "1"), c2.replace("I", "1")])
+    for cand in candidates:
+        if cand in keys_db:
+            return cand
+        if valid_hashes and hashlib.sha256(cand.encode("utf-8")).hexdigest() in valid_hashes:
+            return cand
+    return None
+
 def generate_unique_key():
     chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
     keys_db = load_json(KEYS_DB_PATH, {})
@@ -405,6 +428,10 @@ class NFPortalRequestHandler(SimpleHTTPRequestHandler):
         elif path == "/api/download-tweak":
             key = (query.get("key", [""])[0]).strip().upper()
             pin = (query.get("pin", [""])[0]).strip()
+            keys_db = load_json(KEYS_DB_PATH, {})
+            resolved = resolve_key(key, keys_db)
+            if resolved:
+                key = resolved
 
             if not pin:
                 return self._send_json(400, {
@@ -961,14 +988,58 @@ class NFPortalRequestHandler(SimpleHTTPRequestHandler):
         # ==========================================
         # KEY & PIN VERIFICATION APIS
         # ==========================================
+        elif path == "/api/sync-key":
+            secret = req_data.get("secret", "")
+            if secret != "nfpack_admin_master_sync_2026":
+                return self._send_json(403, {"status": "error", "message": "Yetkisiz erişim!"})
+
+            keys_db = load_json(KEYS_DB_PATH, {})
+            valid_hashes = set(load_json(VALID_KEYS_PATH, []))
+
+            bulk = dict(req_data.get("keys_data", {}))
+            single_key = req_data.get("key")
+            if single_key:
+                bulk[single_key] = req_data.get("data", {
+                    "plan": req_data.get("plan", "lifetime"),
+                    "plan_label": req_data.get("plan_label", "Lifetime"),
+                    "duration_days": req_data.get("duration_days", -1),
+                    "created_at": datetime.now().strftime("%d.%m.%Y %H:%M:%S"),
+                    "status": "unused",
+                    "bound_hwid": None
+                })
+
+            for k, val in bulk.items():
+                clean_k = str(k).strip().upper()
+                keys_db[clean_k] = val
+                h = hashlib.sha256(clean_k.encode("utf-8")).hexdigest()
+                valid_hashes.add(h)
+                if "O" in clean_k:
+                    alt = clean_k.replace("O", "0")
+                    keys_db[alt] = dict(val)
+                    valid_hashes.add(hashlib.sha256(alt.encode("utf-8")).hexdigest())
+
+            save_json(KEYS_DB_PATH, keys_db)
+            save_json(VALID_KEYS_PATH, list(valid_hashes))
+
+            return self._send_json(200, {
+                "status": "success",
+                "synced_count": len(bulk),
+                "message": f"{len(bulk)} anahtar bulut sunucuya başarıyla eşitlendi."
+            })
+
         elif path == "/api/verify-key":
             key = (req_data.get("key") or "").strip().upper()
             if not key:
                 return self._send_json(400, {"status": "error", "message": "Lisans anahtarı boş olamaz."})
 
-            k_hash = hashlib.sha256(key.encode("utf-8")).hexdigest()
             valid_hashes = set(load_json(VALID_KEYS_PATH, []))
             keys_db = load_json(KEYS_DB_PATH, {})
+
+            resolved = resolve_key(key, keys_db, valid_hashes)
+            if resolved:
+                key = resolved
+
+            k_hash = hashlib.sha256(key.encode("utf-8")).hexdigest()
 
             if k_hash not in valid_hashes and key not in keys_db:
                 return self._send_json(404, {
@@ -1009,9 +1080,14 @@ class NFPortalRequestHandler(SimpleHTTPRequestHandler):
             if not key:
                 return self._send_json(400, {"status": "error", "message": "Lisans anahtarı gereklidir."})
 
-            k_hash = hashlib.sha256(key.encode("utf-8")).hexdigest()
             valid_hashes = set(load_json(VALID_KEYS_PATH, []))
             keys_db = load_json(KEYS_DB_PATH, {})
+
+            resolved = resolve_key(key, keys_db, valid_hashes)
+            if resolved:
+                key = resolved
+
+            k_hash = hashlib.sha256(key.encode("utf-8")).hexdigest()
 
             if k_hash not in valid_hashes and key not in keys_db:
                 return self._send_json(403, {"status": "error", "message": "Yetkisiz veya geçersiz lisans anahtarı!"})

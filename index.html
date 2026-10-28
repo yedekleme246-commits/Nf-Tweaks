@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NF Tweaks | Ultimate Game Performance & Kernel FPS Booster</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Rajdhani:wght@500;600;700;800&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        nfdark: '#07090e',
+                        nfcard: 'rgba(15, 20, 32, 0.75)',
+                        nfaccent: '#00f0ff',
+                        nfgreen: '#10b981',
+                        nfviolet: '#8b5cf6',
+                        nfbuzz: '#ff0055'
+                    },
+                    fontFamily: {
+                        tech: ['Rajdhani', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                        sans: ['"Space Grotesk"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #07090e;
+            color: #e2e8f0;
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(0, 240, 255, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 75%, rgba(139, 92, 246, 0.07) 0%, transparent 45%),
+                linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
+            font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+        }
+
+        .glow-border {
+            border: 1px solid rgba(0, 240, 255, 0.25);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.12), inset 0 0 15px rgba(0, 240, 255, 0.04);
+        }
+
+        .glow-border-purple {
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
+        }
+
+        .glow-border-green {
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+        }
+
+        .neon-text {
+            text-shadow: 0 0 12px rgba(0, 240, 255, 0.55);
+        }
+
+        .neon-btn {
+            background: linear-gradient(135deg, #00f0ff 0%, #0099ff 100%);
+            box-shadow: 0 0 22px rgba(0, 240, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .neon-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 32px rgba(0, 240, 255, 0.65), inset 0 1px 0 #fff;
+        }
+
+        .glass-panel {
+            background: rgba(13, 18, 30, 0.82);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Scanline Overlay */
+        .scanline {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0, 0, 0, 0.15) 50%, rgba(0, 0, 0, 0.15));
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 99;
+            opacity: 0.35;
+        }
+
+        /* Benchmark Bar Transitions */
+        .bar-transition {
+            transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans selection:bg-nfaccent selection:text-nfdark">
+    <div class="scanline"></div>
+
+    <!-- ==================== ÜST MENÜ (NAVBAR) ==================== -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- LOGO -->
+            <a href="index.html" class="flex items-center space-x-3 group">
+                <img src="assets/nf_logo.png" alt="NF Tweaks Logo" class="h-12 w-auto object-contain drop-shadow-[0_0_15px_rgba(0,229,255,0.7)] group-hover:scale-105 transition">
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-tech text-2xl font-extrabold tracking-wider text-white">NF<span class="text-nfaccent">TWEAKS</span></span>
+                        <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-nfaccent/10 text-nfaccent border border-nfaccent/30">v2.4.0 FINAL</span>
+                    </div>
+                    <span class="text-[10px] text-gray-400 font-mono tracking-widest block uppercase">Kernel FPS Booster</span>
+                </div>
+            </a>
+
+            <!-- SAYFA MENÜSÜ (ÇOKLU SAYFA BAĞLANTILARI) -->
+            <nav class="hidden md:flex items-center space-x-1 p-1.5 rounded-2xl bg-black/40 border border-white/5">
+                <a href="index.html" class="px-5 py-2.5 rounded-xl font-tech font-bold text-sm text-nfaccent bg-nfaccent/15 border border-nfaccent/30 shadow-sm flex items-center space-x-2 transition">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>TWEAK TANITIMI</span>
+                </a>
+                <a href="pricing.html" class="px-5 py-2.5 rounded-xl font-tech font-bold text-sm text-gray-300 hover:text-white hover:bg-white/5 flex items-center space-x-2 transition">
+                    <i class="fa-solid fa-tags text-nfviolet"></i>
+                    <span>FİYATLANDIRMA</span>
+                </a>
+                <a href="server.html" class="px-5 py-2.5 rounded-xl font-tech font-bold text-sm text-gray-300 hover:text-white hover:bg-white/5 flex items-center space-x-2 transition">
+                    <i class="fa-brands fa-discord text-blue-400"></i>
+                    <span>SUNUCU ADRESİ</span>
+                </a>
+                <a href="download.html" class="px-5 py-2.5 rounded-xl font-tech font-bold text-sm text-gray-300 hover:text-white hover:bg-white/5 flex items-center space-x-2 transition">
+                    <i class="fa-solid fa-key text-nfgreen"></i>
+                    <span>PIN & İNDİRME</span>
+                </a>
+            </nav>
+
+            <!-- SAĞ CTA BUTONU -->
+            <div class="flex items-center space-x-3">
+                <a href="admin.html" class="px-4 py-2.5 rounded-xl font-tech font-bold text-xs text-yellow-400 bg-yellow-400/10 hover:bg-yellow-400/20 border border-yellow-400/30 flex items-center space-x-1.5 transition">
+                    <i class="fa-solid fa-crown"></i>
+                    <span>YÖNETİM PANELİ</span>
+                </a>
+                <a href="download.html" class="neon-btn px-6 py-2.5 rounded-xl font-tech font-extrabold text-sm text-nfdark flex items-center space-x-2 uppercase tracking-wide">
+                    <i class="fa-solid fa-download"></i>
+                    <span>KEY İLE İNDİR</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== HERO BÖLÜMÜ ==================== -->
+    <main class="flex-1">
+        <section class="relative pt-16 pb-24 overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                
+                <!-- Marka Vitrini & Durum Rozeti -->
+                <div class="flex flex-wrap items-center gap-4 mb-8">
+                    <div class="flex items-center space-x-3 bg-white/5 border border-white/10 rounded-2xl px-4 py-2 backdrop-blur-md shadow-lg shadow-nfaccent/10">
+                        <img src="assets/nf_logo.png" alt="NF Tweaks Logo" class="h-10 w-auto object-contain drop-shadow-[0_0_15px_rgba(0,229,255,0.85)]">
+                        <div>
+                            <span class="font-tech text-base font-extrabold text-white tracking-wider">NF<span class="text-nfaccent">TWEAKS</span></span>
+                            <span class="text-[10px] text-gray-400 font-mono block -mt-1">CRYSTAL ENGINE</span>
+                        </div>
+                    </div>
+                    <div class="inline-flex items-center space-x-3 px-4 py-2 rounded-2xl bg-nfaccent/10 border border-nfaccent/30 text-nfaccent text-xs font-mono glow-box">
+                        <span class="w-2 h-2 rounded-full bg-nfgreen animate-ping"></span>
+                        <span class="font-bold">NEXORA & ECHO PC-CHECK %100 CLEAN</span>
+                        <span class="text-gray-500">|</span>
+                        <span class="text-gray-300">0.500 ms WinMM</span>
+                        <span class="text-gray-500">|</span>
+                        <a href="server.html" class="text-blue-300 hover:text-white transition flex items-center space-x-1">
+                            <i class="fa-brands fa-discord"></i>
+                            <span>discord.gg/kZDX8cfTp</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                    <!-- Sol Metin Alanı -->
+                    <div class="lg:col-span-7 space-y-6">
+                        <h1 class="text-4xl sm:text-6xl font-tech font-extrabold text-white leading-tight uppercase">
+                            OYUNLARDA SINIRLARI KALDIRIN.<br>
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-nfaccent via-blue-400 to-nfviolet neon-text">
+                                MAKSİMUM AKICILIK, MİKROSANİYE GECİKME.
+                            </span>
+                        </h1>
+                        <p class="text-gray-300 text-base sm:text-lg max-w-2xl leading-relaxed">
+                            FiveM, GTA V, CS2 ve Valorant için özel geliştirilmiş; CPU çekirdek kilidini kaldıran, Standby RAM şişkinliğini yok eden, haritadan düşmeyi önleyen ve hile tarayıcılarında 3. parti veya cleaner uyarısı vermeyen <strong>Yeni Nesil Windows Kernel Optimizatörü</strong>.
+                        </p>
+
+                        <!-- Hızlı Metrik Kutuları (Gerçekçi & Doğrulanmış) -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                            <div class="glass-panel p-3.5 rounded-xl border border-white/5">
+                                <span class="text-gray-400 text-[11px] font-mono uppercase block">%1 Low FPS Artışı</span>
+                                <span class="text-2xl font-tech font-bold text-nfaccent">+%45 Drop Fix</span>
+                            </div>
+                            <div class="glass-panel p-3.5 rounded-xl border border-white/5">
+                                <span class="text-gray-400 text-[11px] font-mono uppercase block">WinMM Timer</span>
+                                <span class="text-2xl font-tech font-bold text-nfgreen">0.500 ms</span>
+                            </div>
+                            <div class="glass-panel p-3.5 rounded-xl border border-white/5">
+                                <span class="text-gray-400 text-[11px] font-mono uppercase block">DPC Gecikmesi</span>
+                                <span class="text-2xl font-tech font-bold text-nfviolet">&lt; 20 µs</span>
+                            </div>
+                            <div class="glass-panel p-3.5 rounded-xl border border-white/5">
+                                <span class="text-gray-400 text-[11px] font-mono uppercase block">Echo &amp; Nexora</span>
+                                <span class="text-2xl font-tech font-bold text-emerald-400">%100 Temiz</span>
+                            </div>
+                        </div>
+
+                        <!-- Eylem Butonları -->
+                        <div class="flex flex-wrap gap-4 pt-4">
+                            <a href="download.html" class="neon-btn px-8 py-4 rounded-xl font-tech font-extrabold text-base text-nfdark flex items-center space-x-3 shadow-xl">
+                                <i class="fa-solid fa-shield-halved text-lg"></i>
+                                <span>LİSANS PORTALINA GİR & İNDİR</span>
+                            </a>
+                            <a href="pricing.html" class="px-8 py-4 rounded-xl font-tech font-bold text-base text-white bg-white/5 hover:bg-white/10 border border-white/15 flex items-center space-x-2 transition">
+                                <i class="fa-solid fa-tags text-nfaccent"></i>
+                                <span>FİYATLARI VE PAKETLERİ GÖR</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Sağ Canlı Arayüz / Kart Görünümü -->
+                    <div class="lg:col-span-5">
+                        <div class="glass-panel rounded-2xl p-6 glow-border relative overflow-hidden">
+                            <!-- Background Crystal Crown Watermark -->
+                            <img src="assets/nf_logo.png" alt="" class="absolute -right-8 -bottom-8 w-48 h-48 object-contain opacity-10 pointer-events-none select-none blur-[0.5px]">
+
+                            <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-5 relative z-10">
+                                <div class="flex items-center space-x-2">
+                                    <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+                                    <span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
+                                    <span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
+                                    <span class="font-mono text-xs text-gray-400 ml-2">NF_KERNEL_MONITOR.EXE</span>
+                                </div>
+                                <span class="text-[10px] font-mono text-nfaccent bg-nfaccent/10 px-2 py-0.5 rounded border border-nfaccent/30">CANLI AKTİF</span>
+                            </div>
+
+                            <!-- Simüle Canlı Telemetri -->
+                            <div class="space-y-3.5 font-mono text-xs">
+                                <div>
+                                    <div class="flex justify-between text-gray-300 mb-1">
+                                        <span>CPU ÇEKİRDEKLERİ (UNPARKED):</span>
+                                        <span id="dyn-cpu-cores" class="text-nfaccent font-bold">16 / 16 AKTİF (%100)</span>
+                                    </div>
+                                    <div class="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
+                                        <div class="bg-gradient-to-r from-nfaccent to-blue-500 h-full" style="width: 100%"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between text-gray-300 mb-1">
+                                        <span>WINMM MULTİMEDYA ZAMANLAYICI:</span>
+                                        <span class="text-nfgreen font-bold">0.500 ms (KİLİTLİ)</span>
+                                    </div>
+                                    <div class="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
+                                        <div class="bg-gradient-to-r from-emerald-500 to-nfgreen h-full" style="width: 100%"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between text-gray-300 mb-1">
+                                        <span>DPC SÜRÜCÜ GECİKMESİ:</span>
+                                        <span class="text-nfviolet font-bold">&lt; 15 µs (STABİL)</span>
+                                    </div>
+                                    <div class="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
+                                        <div class="bg-gradient-to-r from-purple-500 to-nfviolet h-full" style="width: 95%"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between text-gray-300 mb-1">
+                                        <span>STANDBY RAM BELLEK ŞİŞKİNLİĞİ:</span>
+                                        <span class="text-emerald-400 font-bold">0 MB (OTOMATİK TAHLİYE)</span>
+                                    </div>
+                                    <div class="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
+                                        <div class="bg-gradient-to-r from-emerald-600 to-nfgreen h-full" style="width: 100%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Terminal Çıktısı -->
+                                <div class="bg-black/60 rounded-xl p-3 border border-white/5 space-y-1 text-[11px] text-gray-400">
+                                    <p class="text-emerald-400">[KERNEL] 47 sistem ve donanım optimizasyonu uygulandı ✓</p>
+                                    <p class="text-nfaccent">[GPU] DirectX SwapChain & Pre-Rendered Frame = 1 kilitlendi.</p>
+                                    <p class="text-yellow-400">[DISCORD] DirectComposition ekran paylaşımı %100 akıcı.</p>
+                                    <p class="text-purple-400">[PC-CHECK] Nexora & Echo adli taraması: 0 Risk, 0 Ceza.</p>
+                                </div>
+                            </div>
+
+                            <div class="mt-5 pt-4 border-t border-white/10 flex items-center justify-between">
+                                <span class="text-xs text-gray-400 font-mono">Dijital İmza: NF Technologies (SHA256)</span>
+                                <a href="download.html" class="text-xs font-tech font-bold text-nfaccent hover:underline flex items-center">
+                                    <span>Hemen İndir</span>
+                                    <i class="fa-solid fa-arrow-right ml-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ==================== İNTERAKTİF FPS BENCHMARK BÖLÜMÜ ==================== -->
+        <section class="py-16 border-y border-white/5 bg-black/40 relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-12">
+                    <span class="text-xs font-mono uppercase tracking-widest text-nfaccent px-3 py-1 rounded-full bg-nfaccent/10 border border-nfaccent/25">Performans Raporu</span>
+                    <h2 class="text-3xl sm:text-5xl font-tech font-extrabold text-white mt-3 uppercase tracking-wide">
+                        TEST EDİLMİŞ VE KANITLANMIŞ VERİLER
+                    </h2>
+                    <p class="text-gray-400 text-sm mt-2">
+                        Aşağıdaki oyun butonlarına tıklayarak NF Tweaks öncesi ve sonrası ortalama FPS ile %1 Low (Mikro takılma) değerlerini canlı kıyaslayın.
+                    </p>
+                </div>
+
+                <!-- Oyun Seçim Butonları -->
+                <div class="flex justify-center flex-wrap gap-2 mb-10">
+                    <button onclick="setBenchGame('fivem')" id="btn-bench-fivem" class="px-5 py-2.5 rounded-xl font-tech font-bold text-sm bg-nfaccent text-nfdark shadow-lg transition">
+                        <i class="fa-solid fa-car-burst mr-1.5"></i> FiveM (PVP & Kalabalık Kasaba)
+                    </button>
+                    <button onclick="setBenchGame('cs2')" id="btn-bench-cs2" class="px-5 py-2.5 rounded-xl font-tech font-bold text-sm bg-white/5 text-gray-300 hover:text-white border border-white/10 transition">
+                        <i class="fa-solid fa-crosshairs mr-1.5"></i> Counter-Strike 2
+                    </button>
+                    <button onclick="setBenchGame('valorant')" id="btn-bench-valorant" class="px-5 py-2.5 rounded-xl font-tech font-bold text-sm bg-white/5 text-gray-300 hover:text-white border border-white/10 transition">
+                        <i class="fa-solid fa-shield-virus mr-1.5"></i> Valorant
+                    </button>
+                    <button onclick="setBenchGame('gta5')" id="btn-bench-gta5" class="px-5 py-2.5 rounded-xl font-tech font-bold text-sm bg-white/5 text-gray-300 hover:text-white border border-white/10 transition">
+                        <i class="fa-solid fa-gamepad mr-1.5"></i> GTA V Story / Online
+                    </button>
+                </div>
+
+                <!-- Grafik Alanı -->
+                <div class="glass-panel rounded-2xl p-8 max-w-4xl mx-auto border border-white/10">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <span id="bench-title" class="text-xl font-tech font-bold text-white uppercase block mb-1">FiveM (1080p Yüksek Oyuncu Sayılı Sunucu)</span>
+                            <span class="text-xs font-mono text-gray-400 block mb-6">Test Donanımı: i5-12400F / RTX 3060 12GB / 16GB DDR4</span>
+
+                            <div class="space-y-6">
+                                <!-- Ortalama FPS -->
+                                <div>
+                                    <div class="flex justify-between text-xs font-mono mb-1">
+                                        <span class="text-gray-400">Önceki Ortalama FPS:</span>
+                                        <span id="bench-old-fps" class="text-red-400 font-bold">95 FPS</span>
+                                    </div>
+                                    <div class="w-full bg-gray-800/80 h-3 rounded-full overflow-hidden mb-2">
+                                        <div id="bar-old" class="bg-red-500/80 h-full bar-transition" style="width: 45%"></div>
+                                    </div>
+
+                                    <div class="flex justify-between text-xs font-mono mb-1">
+                                        <span class="text-nfaccent font-bold">NF Tweaks Sonrası FPS:</span>
+                                        <span id="bench-new-fps" class="text-nfaccent font-bold text-sm">138 FPS (+%45)</span>
+                                    </div>
+                                    <div class="w-full bg-gray-800/80 h-4 rounded-full overflow-hidden shadow-inner">
+                                        <div id="bar-new" class="bg-gradient-to-r from-nfaccent to-blue-500 h-full bar-transition shadow-lg shadow-nfaccent/40" style="width: 68%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- 1% Low Takılma -->
+                                <div class="pt-2 border-t border-white/5">
+                                    <div class="flex justify-between text-xs font-mono mb-1">
+                                        <span class="text-gray-400">%1 Low (Anlık Takılma / Stutter):</span>
+                                        <span id="bench-low" class="text-nfgreen font-bold">38 FPS ➔ 84 FPS (+%121 Takılma Fix)</span>
+                                    </div>
+                                    <span class="text-[11px] text-gray-400">Çatışma ve araba sürerken oluşan mikro droplar tamamen sıfırlanmıştır.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Metrik Özeti -->
+                        <div class="bg-black/50 rounded-xl p-6 border border-white/5 space-y-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                                    <i class="fa-solid fa-chart-line text-lg"></i>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-gray-400 font-mono uppercase block">Kazanılan Ortalama Akıcılık</span>
+                                    <span id="metric-boost" class="text-2xl font-tech font-extrabold text-white">+%45 FPS</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
+                                    <i class="fa-solid fa-stopwatch text-lg"></i>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-gray-400 font-mono uppercase block">DPC Gecikmesi (Mermi Tescili)</span>
+                                    <span class="text-2xl font-tech font-extrabold text-white">85 µs (Ultra Düşük)</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                                    <i class="fa-solid fa-shield-halved text-lg"></i>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-gray-400 font-mono uppercase block">Anti-Cheat Güvenliği</span>
+                                    <span class="text-2xl font-tech font-extrabold text-emerald-400">%100 Dosya Temizliği</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ==================== 6 TEKNOLOJİ ODASI (ÖZELLİKLER) ==================== -->
+        <section class="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-xs font-mono uppercase tracking-widest text-nfviolet px-3 py-1 rounded-full bg-nfviolet/10 border border-nfviolet/25">Mühendislik Harikası</span>
+                <h2 class="text-3xl sm:text-5xl font-tech font-extrabold text-white mt-3 uppercase tracking-wide">
+                    NEDEN NF TWEAKS RAKİPSİZ?
+                </h2>
+                <p class="text-gray-400 text-sm mt-2">
+                    Gelişi güzel internet bat dosyalarıyla bilgisayarınızı bozmayın. NF Tweaks, Windows çekirdeğini bozmadan donanımınızın gerçek gücünü ortaya çıkarır.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 1. CPU -->
+                <div class="glass-panel p-6 rounded-2xl border border-white/10 hover:border-nfaccent/40 transition group">
+                    <div class="w-12 h-12 rounded-xl bg-nfaccent/10 border border-nfaccent/30 flex items-center justify-center text-nfaccent text-xl mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-microchip"></i>
+                    </div>
+                    <h3 class="text-xl font-tech font-bold text-white uppercase mb-2">CPU Core Unparking & 0x26 Hex</h3>
+                    <p class="text-gray-400 text-xs leading-relaxed">
+                        Windows'un enerji tasarrufu için CPU çekirdeklerini uykuya (park) alma huyunu tamamen iptal eder. İşlemcinizin tüm çekirdekleri oyunda anında hazır bekler.
+                    </p>
+                </div>
+
+                <!-- 2. GPU & DirectFlip -->
+                <div class="glass-panel p-6 rounded-2xl border border-white/10 hover:border-nfaccent/40 transition group">
+                    <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-xl mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <h3 class="text-xl font-tech font-bold text-white uppercase mb-2">DirectX & DWM DirectFlip Modeli</h3>
+                    <p class="text-gray-400 text-xs leading-relaxed">
+                        DWM pencere kuyruğunu sıfırlayarak çizilen her kareyi gecikmesiz monitöre basar. 1-frame latency ile fare tepkisini espor turnuvaları seviyesine çeker.
+                    </p>
+                </div>
+
+                <!-- 3. RAM & Texture Loss -->
+                <div class="glass-panel p-6 rounded-2xl border border-white/10 hover:border-nfaccent/40 transition group">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-memory"></i>
+                    </div>
+                    <h3 class="text-xl font-tech font-bold text-white uppercase mb-2">Texture Loss & Harita Koruyucu</h3>
+                    <p class="text-gray-400 text-xs leading-relaxed">
+                        FiveM'de yüksek hızda giderken binaların veya yerin yok olması (texture loss) sorununu I/O Priority 3 ve Standby RAM tahliyesi ile tamamen bitirir.
+                    </p>
+                </div>
+
+                <!-- 4. DSCP 46 Ağ Paketi -->
+                <div class="glass-panel p-6 rounded-2xl border border-white/10 hover:border-nfaccent/40 transition group">
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 text-xl mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-network-wired"></i>
+                    </div>
+                    <h3 class="text-xl font-tech font-bold text-white uppercase mb-2">DSCP 46 QoS Mermi Önceliği</h3>
+                    <p class="text-gray-400 text-xs leading-relaxed">
+                        Oyun bağlantı paketlerinize ağ kartında en yüksek QoS önceliğini tanımlar. Nagle algoritması kapanır, mermileriniz düşmana anında kayıt olur.
+                    </p>
+                </div>
+
+                <!-- 5. Discord Uyumu -->
+                <div class="glass-panel p-6 rounded-2xl border border-white/10 hover:border-nfaccent/40 transition group">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-xl mb-4 group-hover:scale-110 transition">
+                        <i class="fa-brands fa-discord"></i>
+                    </div>
+                    <h3 class="text-xl font-tech font-bold text-white uppercase mb-2">Discord & Yayın Tam Akıcılığı</h3>
+                    <p class="text-gray-400 text-xs leading-relaxed">
+                        Özel DirectComposition koruması sayesinde oyun oynarken veya ekran paylaşırken Discord asla kasmaz, ses kesilmez ve siyah ekran vermez.
+                    </p>
+                </div>
+
+                <!-- 6. Hile Kontrol Güvenliği -->
+                <div class="glass-panel p-6 rounded-2xl border border-white/10 hover:border-nfaccent/40 transition group">
+                    <div class="w-12 h-12 rounded-xl bg-green-500/10 border border-green-500/30 flex items-center justify-center text-green-400 text-xl mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+                    <h3 class="text-xl font-tech font-bold text-white uppercase mb-2">Nexora & Echo PC-Check Güvencesi</h3>
+                    <p class="text-gray-400 text-xs leading-relaxed">
+                        Otomatik C:/ disk izi temizleme veya şüpheli dosya modifikasyonları yapmaz. Sunucu denetimlerine girdiğinizde alnınızın akıyla çıkarsınız.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Sayfa Yönlendirme Kartı -->
+            <div class="mt-16 glass-panel rounded-2xl p-8 border border-white/10 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div>
+                    <h4 class="text-2xl font-tech font-bold text-white uppercase">SATIŞ VE FİYATLANDIRMA PAKETLERİNİ GÖRMEK Mİ İSTİYORSUNUZ?</h4>
+                    <p class="text-gray-400 text-xs mt-1">Haftalık, Aylık veya Sınırsız Lifetime VIP lisanslarımızı özel sayfasından inceleyin.</p>
+                </div>
+                <div class="flex items-center space-x-3 shrink-0">
+                    <a href="pricing.html" class="px-6 py-3 rounded-xl font-tech font-bold text-sm text-nfdark bg-nfaccent hover:contrast-125 transition">
+                        FİYAT BİLGİLENDİRMESİNE GİT <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="glass-panel border-t border-white/10 py-10 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center space-x-3">
+                <img src="assets/nf_logo.png" alt="NF Logo" class="h-9 w-auto object-contain drop-shadow-[0_0_12px_rgba(0,229,255,0.6)]">
+                <span class="font-tech text-lg font-bold text-white tracking-wide">NF<span class="text-nfaccent">TWEAKS</span> PERFORMANCE SUITE</span>
+            </div>
+            <div class="flex flex-wrap justify-center gap-6 text-xs font-mono text-gray-400">
+                <a href="index.html" class="hover:text-nfaccent transition">Tweak Tanıtımı</a>
+                <a href="pricing.html" class="hover:text-nfaccent transition">Fiyatlandırma</a>
+                <a href="server.html" class="hover:text-nfaccent transition">Sunucu & Discord</a>
+                <a href="download.html" class="hover:text-nfaccent transition">PIN İle İndir</a>
+            </div>
+            <p class="text-xs text-gray-500 font-mono">
+                &copy; 2026 NF Technologies Inc. Tüm hakları saklıdır.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Benchmark Tab & Dynamic Telemetry Script -->
+    <script>
+        // Dynamically detect visitor's actual CPU core/thread count
+        (function() {
+            try {
+                const cores = navigator.hardwareConcurrency || 8;
+                const dynEl = document.getElementById('dyn-cpu-cores');
+                if (dynEl) {
+                    dynEl.textContent = `${cores} / ${cores} AKTİF (%100)`;
+                }
+            } catch (e) {
+                console.log('CPU detection fallback');
+            }
+        })();
+
+        const games = {
+            fivem: {
+                title: "FiveM (1080p Yüksek Oyuncu Sayılı Sunucu)",
+                oldFps: "95 FPS",
+                newFps: "138 FPS (+%45)",
+                low: "38 FPS ➔ 84 FPS (+%121 Takılma Fix)",
+                boost: "+%45 FPS",
+                oldPct: "45%",
+                newPct: "68%"
+            },
+            cs2: {
+                title: "Counter-Strike 2 (Ölüm Maçı / Premier 128-Tick)",
+                oldFps: "175 FPS",
+                newFps: "235 FPS (+%34)",
+                low: "95 FPS ➔ 180 FPS (+%89)",
+                boost: "+%34 FPS",
+                oldPct: "50%",
+                newPct: "72%"
+            },
+            valorant: {
+                title: "Valorant (Dereceli Maç / Riot Vanguard Uyumlu)",
+                oldFps: "240 FPS",
+                newFps: "315 FPS (+%31)",
+                low: "140 FPS ➔ 245 FPS (+%75)",
+                boost: "+%31 FPS",
+                oldPct: "55%",
+                newPct: "76%"
+            },
+            gta5: {
+                title: "GTA V Story & Online (Very High Dokular)",
+                oldFps: "82 FPS",
+                newFps: "118 FPS (+%44)",
+                low: "45 FPS ➔ 88 FPS (+%95)",
+                boost: "+%44 FPS",
+                oldPct: "42%",
+                newPct: "65%"
+            }
+        };
+
+        function setBenchGame(key) {
+            const data = games[key];
+            if (!data) return;
+
+            document.getElementById('bench-title').textContent = data.title;
+            document.getElementById('bench-old-fps').textContent = data.oldFps;
+            document.getElementById('bench-new-fps').textContent = data.newFps;
+            document.getElementById('bench-low').textContent = data.low;
+            document.getElementById('metric-boost').textContent = data.boost;
+            document.getElementById('bar-old').style.width = data.oldPct;
+            document.getElementById('bar-new').style.width = data.newPct;
+
+            ['fivem', 'cs2', 'valorant', 'gta5'].forEach(g => {
+                const btn = document.getElementById('btn-bench-' + g);
+                if (g === key) {
+                    btn.className = "px-5 py-2.5 rounded-xl font-tech font-bold text-sm bg-nfaccent text-nfdark shadow-lg transition";
+                } else {
+                    btn.className = "px-5 py-2.5 rounded-xl font-tech font-bold text-sm bg-white/5 text-gray-300 hover:text-white border border-white/10 transition";
+                }
+            });
+        }
+    </script>
+</body>
+</html>

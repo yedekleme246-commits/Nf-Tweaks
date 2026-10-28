@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NF Tweaks | Fiyatlandırma & Satın Alım Paketleri</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Rajdhani:wght@500;600;700;800&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        nfdark: '#07090e',
+                        nfcard: 'rgba(15, 20, 32, 0.75)',
+                        nfaccent: '#00f0ff',
+                        nfgreen: '#10b981',
+                        nfviolet: '#8b5cf6',
+                        nfbuzz: '#ff0055'
+                    },
+                    fontFamily: {
+                        tech: ['Rajdhani', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                        sans: ['"Space Grotesk"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #07090e;
+            color: #e2e8f0;
+            background-image: 
+                radial-gradient(circle at 85% 20%, rgba(139, 92, 246, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 15% 75%, rgba(0, 240, 255, 0.07) 0%, transparent 45%),
+                linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
+        }
+
+        .glow-border {
+            border: 1px solid rgba(0, 240, 255, 0.25);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.12), inset 0 0 15px rgba(0, 240, 255, 0.04);
+        }
+
+        .glow-border-purple {
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.2), inset 0 0 15px rgba(139, 92, 246, 0.05);
+        }
+
+        .neon-btn {
+            background: linear-gradient(135deg, #00f0ff 0%, #0099ff 100%);
+            box-shadow: 0 0 22px rgba(0, 240, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .neon-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 32px rgba(0, 240, 255, 0.65);
+        }
+
+        .neon-btn-purple {
+            background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.45);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .neon-btn-purple:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 35px rgba(168, 85, 247, 0.7);
+        }
+
+        .glass-panel {
+            background: rgba(13, 18, 30, 0.82);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .scanline {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0, 0, 0, 0.15) 50%, rgba(0, 0, 0, 0.15));
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 99;
+            opacity: 0.35;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans selection:bg-nfaccent selection:text-nfdark">
+    <div class="scanline"></div>
+
+    <!-- ==================== ÜST MENÜ (NAVBAR) ==================== -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <a href="index.html" class="flex items-center space-x-3 group">
+                <img src="assets/nf_logo.png" alt="NF Tweaks Logo" class="h-12 w-auto object-contain drop-shadow-[0_0_15px_rgba(0,229,255,0.7)] group-hover:scale-105 transition">
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-tech text-2xl font-extrabold tracking-wider text-white">NF<span class="text-nfaccent">TWEAKS</span></span>
+                        <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-nfaccent/10 text-nfaccent border border-nfaccent/30">v2.4.0 FINAL</span>
+                    </div>
+                    <span class="text-[10px] text-gray-400 font-mono tracking-widest block uppercase">Kernel FPS Booster</span>
+                </div>
+            </a>
+
+            <!-- SAYFA MENÜSÜ -->
+            <nav class="hidden md:flex items-center space-x-1 p-1.5 rounded-2xl bg-black/40 border border-white/5">
+                <a href="index.html" class="px-5 py-2.5 rounded-xl font-tech font-bold text-sm text-gray-300 hover:text-white hover:bg-white/5 flex items-center space-x-2 transition">
+                    <i class="fa-solid fa-wand-magic-sparkles text-nfaccent"></i>
+                    <span>TWEAK TANITIMI</span>
+                </a>
+                <a href="pricing.html" class="px-5 py-2.5 rounded-xl font-tech font-bold text-sm text-nfviolet bg-nfviolet/15 border border-nfviolet/30 shadow-sm flex items-center space-x-2 transition">
+                    <i class="fa-solid fa-tags"></i>
+                    <span>FİYATLANDIRMA</span>
+                </a>
+                <a href="server.html" class="px-5 py-2.5 rounded-xl font-tech font-bold text-sm text-gray-300 hover:text-white hover:bg-white/5 flex items-center space-x-2 transition">
+                    <i class="fa-brands fa-discord text-blue-400"></i>
+                    <span>SUNUCU ADRESİ</span>
+                </a>
+                <a href="download.html" class="px-5 py-2.5 rounded-xl font-tech font-bold text-sm text-gray-300 hover:text-white hover:bg-white/5 flex items-center space-x-2 transition">
+                    <i class="fa-solid fa-key text-nfgreen"></i>
+                    <span>PIN & İNDİRME</span>
+                </a>
+            </nav>
+
+            <div class="flex items-center space-x-3">
+                <button onclick="openMyOrdersModal()" class="px-4 py-2.5 rounded-xl font-tech font-bold text-xs text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 flex items-center space-x-1.5 transition">
+                    <i class="fa-solid fa-receipt"></i>
+                    <span>SİPARİŞLERİM</span>
+                </button>
+                <a href="admin.html" class="px-4 py-2.5 rounded-xl font-tech font-bold text-xs text-yellow-400 bg-yellow-400/10 hover:bg-yellow-400/20 border border-yellow-400/30 flex items-center space-x-1.5 transition">
+                    <i class="fa-solid fa-crown"></i>
+                    <span>YÖNETİM PANELİ</span>
+                </a>
+                <a href="download.html" class="neon-btn px-6 py-2.5 rounded-xl font-tech font-extrabold text-sm text-nfdark flex items-center space-x-2 uppercase tracking-wide">
+                    <i class="fa-solid fa-download"></i>
+                    <span>KEY İLE İNDİR</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== FİYATLANDIRMA BAŞLIK ==================== -->
+    <main class="flex-1 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <div class="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-nfviolet/10 border border-nfviolet/30 text-nfviolet text-xs font-mono mb-4">
+                    <i class="fa-solid fa-tag"></i>
+                    <span>RESMİ SATIŞ VE LİSANS LİSTESİ</span>
+                </div>
+                <h1 class="text-4xl sm:text-6xl font-tech font-extrabold text-white uppercase tracking-wide">
+                    BÜTÇENİZE VE HEDEFİNİZE UYGUN PAKETLER
+                </h1>
+                <p class="text-gray-300 text-sm sm:text-base mt-4 max-w-2xl mx-auto leading-relaxed">
+                    <span class="text-yellow-400 font-bold block mb-1">
+                        <i class="fa-solid fa-shield-halved mr-1"></i> Web sitesi üzerinden kart ile doğrudan çekim yapılmamaktadır.
+                    </span>
+                    Tüm lisans satışları ve teslimatları, dolandırıcılıkları önlemek amacıyla resmi Discord sunucumuzda ticket açılarak bizzat Sunucu Sahibi <strong>(ogdovmesi)</strong> onayı ile gerçekleştirilir.
+                </p>
+            </div>
+
+            <!-- ==================== 3 FİYAT KARTI ==================== -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch mb-20">
+                
+                <!-- 1. HAFTALIK PAKET -->
+                <div class="glass-panel rounded-3xl p-8 border border-white/10 flex flex-col justify-between hover:border-nfaccent/40 transition">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-xs font-mono px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/25 uppercase font-bold">Deneme & Turnuva</span>
+                            <i class="fa-solid fa-calendar-week text-gray-500 text-lg"></i>
+                        </div>
+                        <h2 class="text-2xl font-tech font-bold text-white uppercase">1 Haftalık Espor Lisansı</h2>
+                        <p class="text-gray-400 text-xs mt-1 mb-6">Kısa süreli turnuvalar ve performansı bizzat denemek isteyenler için ideal.</p>
+
+                        <!-- Fiyat -->
+                        <div class="flex items-baseline space-x-2 mb-6 pb-6 border-b border-white/10">
+                            <span class="text-5xl font-tech font-extrabold text-white">₺600</span>
+                            <span class="text-sm font-mono text-gray-400">/ 7 Günlük</span>
+                        </div>
+
+                        <!-- Özellikler -->
+                        <ul class="space-y-3.5 text-xs text-gray-300 font-sans mb-8">
+                            <li class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-check text-nfgreen text-sm shrink-0"></i>
+                                <span>Tüm 47+ Sistem, CPU ve GPU Tweakleri</span>
+                            </li>
+                            <li class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-check text-nfgreen text-sm shrink-0"></i>
+                                <span>0.500 ms WinMM Multimedya Zamanlayıcı</span>
+                            </li>
+                            <li class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-check text-nfgreen text-sm shrink-0"></i>
+                                <span>DSCP 46 Ağ & Mermi Gecikme Önceliği</span>
+                            </li>
+                            <li class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-check text-nfgreen text-sm shrink-0"></i>
+                                <span>Nexora & Echo PC-Check Güvencesi</span>
+                            </li>
+                            <li class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-check text-nfgreen text-sm shrink-0"></i>
+                                <span>Otomatik Lisans Üretimi & Owner Onay Güvencesi</span>
+                            </li>
+                            <li class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-check text-nfgreen text-sm shrink-0"></i>
+                                <span>Tek Seferlik Güvenlik PIN'i ile İndirme</span>
+                            </li>
+                            <li class="flex items-center space-x-2.5 text-gray-500">
+                                <i class="fa-solid fa-xmark text-sm shrink-0"></i>
+                                <span class="line-through">FSR 3.1 & FrameGen Motoru</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <button onclick="openTicketModal('weekly', '1 Haftalık Espor Lisansı', 600)" class="w-full py-4 rounded-xl font-tech font-extrabold text-sm text-center text-white bg-blue-600/30 hover:bg-blue-600/50 border border-blue-500/40 transition block uppercase shadow-lg shadow-blue-600/20">
+                        <i class="fa-brands fa-discord mr-2 text-base"></i> TİCKET AÇIP SATIN AL (₺600)
+                    </button>
+                    <span class="text-[11px] font-mono text-gray-400 block text-center mt-2.5">
+                        <i class="fa-solid fa-tag text-blue-400 mr-1"></i> Bilette <strong>@ogdovmesi</strong>'ni etiketleyin
+                    </span>
+                </div>
+
+                <!-- 2. AYLIK PRO PAKET -->
+                <div class="glass-panel rounded-3xl p-8 border border-white/10 flex flex-col justify-between hover:border-nfaccent/40 transition">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-xs font-mono px-3 py-1 rounded-full bg-nfaccent/10 text-nfaccent border border-nfaccent/30 uppercase font-bold">Popüler Rekabetçi</span>
+                            <i class="fa-solid fa-calendar-days text-nfaccent text-lg"></i>
+                        </div>
+                        <h2 class="text-2xl font-tech font-bold text-white uppercase">1 Aylık Pro Lisans</h2>
+                        <p class="text-gray-400 text-xs mt-1 mb-6">Her gün aktif FiveM, CS2 veya Valorant oynayan profesyonel oyuncular için.</p>
+
+                        <!-- Fiyat -->
+                        <div class="flex items-baseline space-x-2 mb-6 pb-6 border-b border-white/10">
+                            <span class="text-5xl font-tech font-extrabold text-white">₺1.000</span>
+                            <span class="text-sm font-mono text-gray-400">/ 30 Günlük</span>
+                        </div>
+
+                        <!-- Özellikler -->
+                        <ul class="space-y-3.5 text-xs text-gray-300 font-sans mb-8">
+                            <li class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-check text-nfgreen text-sm shrink-0"></i>
+                                <span>Haftalık Paketteki Tüm Özellikler</span>
+                            </li>
+                            <li class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-check text-nfgreen text-sm shrink-0"></i>
+                                <span>FiveM Özel LOD ve Motor Overclock</span>
+                            </li>
+                            <li class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-check text-nfgreen text-sm shrink-0"></i>
+                                <span>Haritadan Düşme (Texture Loss) Tam Koruması</span>
+                            </li>
+                            <li class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-check text-nfgreen text-sm shrink-0"></i>
+                                <span>Discord & Yayın Ekran Açma Akıcılık Desteği</span>
+                            </li>
+                            <li class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-check text-nfgreen text-sm shrink-0"></i>
+                                <span>Otomatik Lisans Üretimi & Owner Onay Güvencesi</span>
+                            </li>
+                            <li class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-check text-nfgreen text-sm shrink-0"></i>
+                                <span>Discord Sunucumuzda "NF Pro" Rolü</span>
+                            </li>
+                            <li class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-check text-nfgreen text-sm shrink-0"></i>
+                                <span>Öncelikli Ticket ve Teknik Destek</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <button onclick="openTicketModal('monthly', '1 Aylık Pro Lisans', 1000)" class="w-full py-4 rounded-xl font-tech font-extrabold text-sm text-center text-nfdark bg-nfaccent hover:contrast-125 transition block uppercase shadow-xl shadow-nfaccent/25">
+                        <i class="fa-brands fa-discord mr-2 text-base"></i> TİCKET AÇIP SATIN AL (₺1.000)
+                    </button>
+                    <span class="text-[11px] font-mono text-gray-400 block text-center mt-2.5">
+                        <i class="fa-solid fa-tag text-nfaccent mr-1"></i> Bilette <strong>@ogdovmesi</strong>'ni etiketleyin
+                    </span>
+                </div>
+
+                <!-- 3. SINIRSIZ LIFETIME VIP (EN ÇOK SATAN) -->
+                <div class="glass-panel rounded-3xl p-8 glow-border-purple relative overflow-hidden flex flex-col justify-between">
+                    <div class="absolute -right-12 -top-12 w-40 h-40 bg-nfviolet/20 rounded-full blur-2xl pointer-events-none"></div>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-xs font-mono px-3 py-1 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border border-purple-500/40 uppercase font-bold flex items-center space-x-1">
+                                <i class="fa-solid fa-crown text-yellow-400"></i>
+                                <span>EN ÇOK TERCİH EDİLEN</span>
+                            </span>
+                            <i class="fa-solid fa-infinity text-nfviolet text-xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-tech font-bold text-white uppercase">Sınırsız Lifetime VIP</h2>
+                        <p class="text-gray-400 text-xs mt-1 mb-6">Tek sefer ödeme yapın, ömür boyu tüm güncelleme ve özelliklere sınırsız sahip olun.</p>
+
+                        <!-- Fiyat -->
+                        <div class="flex items-baseline space-x-2 mb-6 pb-6 border-b border-white/10">
+                            <span class="text-5xl font-tech font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-pink-400">₺1.500</span>
+                            <span class="text-sm font-mono text-gray-400">/ Ömür Boyu Tek Sefer</span>
+                        </div>
+
+                        <!-- Özellikler -->
+                        <ul class="space-y-3.5 text-xs text-gray-300 font-sans mb-8">
+                            <li class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-check text-nfgreen text-sm shrink-0"></i>
+                                <span class="font-bold text-white">Sonsuz Süre (Sona Erme Tarihi Yok)</span>
+                            </li>
+                            <li class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-check text-nfgreen text-sm shrink-0"></i>
+                                <span>Otomatik Lisans Üretimi & Owner Onay Güvencesi</span>
+                            </li>
+                            <li class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-check text-nfgreen text-sm shrink-0"></i>
+                                <span>FSR 3.1 & AFMF 2 Ultra Akıcılık Modülü</span>
+                            </li>
+                            <li class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-check text-nfgreen text-sm shrink-0"></i>
+                                <span>Gelecek Tüm Sürümler (v3.0 Dahil) Ücretsiz</span>
+                            </li>
+                            <li class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-check text-nfgreen text-sm shrink-0"></i>
+                                <span>Donanım Değişikliğinde Ücretsiz HWID Sıfırlama</span>
+                            </li>
+                            <li class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-check text-nfgreen text-sm shrink-0"></i>
+                                <span>7/24 Birebir AnyDesk & Özel VIP Destek</span>
+                            </li>
+                            <li class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-check text-nfgreen text-sm shrink-0"></i>
+                                <span>Discord VIP Rolü & Özel Çekiliş Hakkı</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <button onclick="openTicketModal('lifetime', 'Sınırsız Lifetime VIP', 1500)" class="w-full neon-btn-purple py-4 rounded-xl font-tech font-extrabold text-base text-center text-white block uppercase shadow-xl cursor-pointer">
+                        <i class="fa-brands fa-discord mr-2 text-lg"></i> TİCKET AÇIP LIFETIME AL (₺1.500)
+                    </button>
+                    <span class="text-[11px] font-mono text-purple-300 block text-center mt-2.5">
+                        <i class="fa-solid fa-crown text-yellow-400 mr-1"></i> Bilette <strong>@ogdovmesi</strong>'ni etiketleyin
+                    </span>
+                </div>
+
+            </div>
+
+            <!-- ==================== ÖZELLİK KARŞILAŞTIRMA TABLOSU ==================== -->
+            <div class="glass-panel rounded-3xl p-8 border border-white/10 mb-20">
+                <div class="text-center mb-10">
+                    <span class="text-xs font-mono uppercase text-nfaccent px-3 py-1 rounded-full bg-nfaccent/10 border border-nfaccent/25">Ayrıntılı Kıyaslama</span>
+                    <h3 class="text-3xl font-tech font-bold text-white uppercase mt-2">PAKET ÖZELLİK MATRİSİ</h3>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs font-mono">
+                        <thead>
+                            <tr class="border-b border-white/10 text-gray-400">
+                                <th class="pb-4 font-bold uppercase">Özellik / Modül</th>
+                                <th class="pb-4 text-center font-bold uppercase text-blue-400">Haftalık (₺600)</th>
+                                <th class="pb-4 text-center font-bold uppercase text-nfaccent">Aylık Pro (₺1.000)</th>
+                                <th class="pb-4 text-center font-bold uppercase text-purple-400">Lifetime VIP (₺1.500)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            <tr>
+                                <td class="py-4 text-white font-tech text-sm font-bold">47 Adet Windows & GPU Çekirdek Tweak</td>
+                                <td class="text-center text-nfgreen"><i class="fa-solid fa-check"></i></td>
+                                <td class="text-center text-nfgreen"><i class="fa-solid fa-check"></i></td>
+                                <td class="text-center text-nfgreen"><i class="fa-solid fa-check"></i></td>
+                            </tr>
+                            <tr>
+                                <td class="py-4 text-white font-tech text-sm font-bold">0.500 ms WinMM Multimedya Kernel Timer</td>
+                                <td class="text-center text-nfgreen"><i class="fa-solid fa-check"></i></td>
+                                <td class="text-center text-nfgreen"><i class="fa-solid fa-check"></i></td>
+                                <td class="text-center text-nfgreen"><i class="fa-solid fa-check"></i></td>
+                            </tr>
+                            <tr>
+                                <td class="py-4 text-white font-tech text-sm font-bold">DSCP 46 QoS E-Spor Mermi Önceliği</td>
+                                <td class="text-center text-nfgreen"><i class="fa-solid fa-check"></i></td>
+                                <td class="text-center text-nfgreen"><i class="fa-solid fa-check"></i></td>
+                                <td class="text-center text-nfgreen"><i class="fa-solid fa-check"></i></td>
+                            </tr>
+                            <tr>
+                                <td class="py-4 text-white font-tech text-sm font-bold">Nexora & Echo Hile Kontrol Güvenliği</td>
+                                <td class="text-center text-nfgreen"><i class="fa-solid fa-check"></i></td>
+                                <td class="text-center text-nfgreen"><i class="fa-solid fa-check"></i></td>
+                                <td class="text-center text-nfgreen"><i class="fa-solid fa-check"></i></td>
+                            </tr>
+                            <tr>
+                                <td class="py-4 text-white font-tech text-sm font-bold">FiveM Haritadan Düşme (Texture Loss) Koruması</td>
+                                <td class="text-center text-gray-500"><i class="fa-solid fa-xmark"></i></td>
+                                <td class="text-center text-nfgreen"><i class="fa-solid fa-check"></i></td>
+                                <td class="text-center text-nfgreen"><i class="fa-solid fa-check"></i></td>
+                            </tr>
+                            <tr>
+                                <td class="py-4 text-white font-tech text-sm font-bold">FSR 3.1 & AFMF 2 FPS Optimizasyon Modülü</td>
+                                <td class="text-center text-gray-500"><i class="fa-solid fa-xmark"></i></td>
+                                <td class="text-center text-gray-500"><i class="fa-solid fa-xmark"></i></td>
+                                <td class="text-center text-nfgreen"><i class="fa-solid fa-check"></i></td>
+                            </tr>
+                            <tr>
+                                <td class="py-4 text-white font-tech text-sm font-bold">Ücretsiz HWID Sıfırlama Hakkı</td>
+                                <td class="text-center text-gray-500"><i class="fa-solid fa-xmark"></i></td>
+                                <td class="text-center text-yellow-400 font-bold">1 Seferlik</td>
+                                <td class="text-center text-nfgreen font-bold">Sınırsız Garantili</td>
+                            </tr>
+                            <tr>
+                                <td class="py-4 text-white font-tech text-sm font-bold">Tek Seferlik Güvenlik PIN'i ile İndirme</td>
+                                <td class="text-center text-nfgreen"><i class="fa-solid fa-check"></i></td>
+                                <td class="text-center text-nfgreen"><i class="fa-solid fa-check"></i></td>
+                                <td class="text-center text-nfgreen"><i class="fa-solid fa-check"></i></td>
+                            </tr>
+                            <tr>
+                                <td class="py-4 text-white font-tech text-sm font-bold">7/24 VIP Birebir AnyDesk Kurulum Desteği</td>
+                                <td class="text-center text-gray-500"><i class="fa-solid fa-xmark"></i></td>
+                                <td class="text-center text-gray-500"><i class="fa-solid fa-xmark"></i></td>
+                                <td class="text-center text-nfgreen"><i class="fa-solid fa-check"></i></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ==================== DİSCORD TİCKET SATIN ALMA REHBERİ (FOTO 2 KALDIRILDI) ==================== -->
+            <div class="glass-panel rounded-3xl p-8 sm:p-10 border border-[#00e5ff]/30 glow-border mb-16 max-w-4xl mx-auto relative overflow-hidden">
+                <div class="absolute -right-20 -top-20 w-64 h-64 bg-[#00e5ff]/15 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="text-center max-w-2xl mx-auto mb-8 relative z-10">
+                    <div class="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-[#00e5ff]/15 text-[#00e5ff] border border-[#00e5ff]/30 text-xs font-mono font-bold mb-3 shadow-sm">
+                        <i class="fa-brands fa-discord"></i>
+                        <span>RESMİ SATIŞ VE SİPARİŞ KANALI</span>
+                    </div>
+                    <h3 class="text-2xl sm:text-4xl font-tech font-extrabold text-white uppercase tracking-wide">
+                        DİSCORD TİCKET İLE SATIN ALMA REHBERİ
+                    </h3>
+                    <p class="text-gray-300 text-xs sm:text-sm font-mono mt-2 leading-relaxed">
+                        Web sitesinde hiçbir banka, kart veya hesap bilgisi yer almamaktadır. Dolandırıcılıkları ve yetkisiz işlemleri engellemek için tüm satışlar yalnızca resmi Discord sunucumuzda ticket açılarak bizzat Sunucu Sahibi <strong>(ogdovmesi)</strong> ile görüşülerek tamamlanır.
+                    </p>
+                </div>
+
+                <!-- Adım Adım Akış -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs font-mono mb-8 relative z-10">
+                    <div class="bg-black/50 p-4 rounded-2xl border border-white/5 space-y-2">
+                        <div class="w-8 h-8 rounded-xl bg-[#5865F2]/20 text-[#5865F2] flex items-center justify-center font-bold text-sm">1</div>
+                        <span class="text-white font-bold block text-sm">Sunucuya Katılın</span>
+                        <p class="text-gray-400 text-[11px] leading-relaxed">
+                            <a href="https://discord.gg/kZDX8cfTp" target="_blank" class="text-[#00e5ff] underline font-bold">discord.gg/kZDX8cfTp</a> adresine girin ve kuralları onaylayın.
+                        </p>
+                    </div>
+
+                    <div class="bg-black/50 p-4 rounded-2xl border border-white/5 space-y-2">
+                        <div class="w-8 h-8 rounded-xl bg-[#00e5ff]/20 text-[#00e5ff] flex items-center justify-center font-bold text-sm">2</div>
+                        <span class="text-white font-bold block text-sm">Ticket / Bilet Açın</span>
+                        <p class="text-gray-400 text-[11px] leading-relaxed">
+                            Sunucudaki <code class="text-[#00e5ff] font-bold">#satın-alım</code> veya <code class="text-[#00e5ff] font-bold">#ticket-aç</code> kanalından butona basıp özel biletinizi açın.
+                        </p>
+                    </div>
+
+                    <div class="bg-black/50 p-4 rounded-2xl border border-red-500/30 space-y-2">
+                        <div class="w-8 h-8 rounded-xl bg-red-600/30 text-red-400 flex items-center justify-center font-bold text-sm">3</div>
+                        <span class="text-red-400 font-bold block text-sm">ogdovmesi'yi Etiketleyin</span>
+                        <p class="text-gray-300 text-[11px] leading-relaxed">
+                            Açılan bilette Sunucu Sahibi <strong class="text-white bg-red-500/20 px-1 py-0.5 rounded">@ogdovmesi</strong> (kutsalim.) etiketini atın ve paketi belirtin.
+                        </p>
+                    </div>
+
+                    <div class="bg-black/50 p-4 rounded-2xl border border-white/5 space-y-2">
+                        <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">4</div>
+                        <span class="text-white font-bold block text-sm">Ödemeyi Bilette Yapın</span>
+                        <p class="text-gray-400 text-[11px] leading-relaxed">
+                            ogdovmesi size bilette doğrudan ödeme bilgilerini iletir. Ödemeyi tamamlayıp dekontunuzu paylaşın.
+                        </p>
+                    </div>
+
+                    <div class="bg-black/50 p-4 rounded-2xl border border-white/5 space-y-2">
+                        <div class="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-sm">5</div>
+                        <span class="text-white font-bold block text-sm">Lisans Key'inizi Alın</span>
+                        <p class="text-gray-400 text-[11px] leading-relaxed">
+                            ogdovmesi ödemenizi kontrol edip onaylar ve size özel 25 haneli tweak anahtarınızı bilette teslim eder.
+                        </p>
+                    </div>
+
+                    <div class="bg-black/50 p-4 rounded-2xl border border-yellow-500/30 space-y-2">
+                        <div class="w-8 h-8 rounded-xl bg-yellow-500/20 text-yellow-400 flex items-center justify-center font-bold text-sm">6</div>
+                        <span class="text-yellow-400 font-bold block text-sm">PIN İle İndirin</span>
+                        <p class="text-gray-300 text-[11px] leading-relaxed">
+                            Keyinizle sitemizdeki <a href="download.html" class="text-yellow-400 underline font-bold">PIN &amp; İndirme Portalı</a>'na girerek tek seferlik PIN'inizi alın ve indirin!
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-3 relative z-10">
+                    <a href="https://discord.gg/kZDX8cfTp" target="_blank" class="discord-btn flex-1 py-4 rounded-xl font-tech font-extrabold text-sm text-center text-white flex items-center justify-center space-x-2.5 uppercase shadow-xl shadow-[#5865F2]/30">
+                        <i class="fa-brands fa-discord text-xl"></i>
+                        <span>DİSCORD SUNUCUSUNDA TİCKET AÇ (discord.gg/kZDX8cfTp)</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs ml-1"></i>
+                    </a>
+                    <a href="https://discord.com/users/1116804738009272412" target="_blank" class="px-6 py-4 rounded-xl font-tech font-bold text-xs text-center text-white bg-red-600/20 hover:bg-red-600/30 border border-red-500/40 flex items-center justify-center space-x-2 transition">
+                        <i class="fa-solid fa-crown text-yellow-400"></i>
+                        <span>OGDOVMESİ PROFİLİ</span>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ==================== DİSCORD TİCKET & OGDOVMESİ SATIN ALIM MODALI ==================== -->
+    <div id="ticket-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="glass-panel max-w-lg w-full rounded-3xl p-6 sm:p-8 border border-[#00e5ff]/40 relative shadow-2xl my-6">
+            <div class="absolute -right-16 -top-16 w-44 h-44 bg-[#00e5ff]/20 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <!-- Kapat Butonu -->
+            <button onclick="closeTicketModal()" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Başlık -->
+            <div class="flex items-center space-x-3.5 mb-5">
+                <img src="assets/nf_logo.png" alt="NF Logo" class="h-12 w-auto object-contain drop-shadow-[0_0_12px_rgba(0,229,255,0.7)] shrink-0">
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <h3 class="text-xl font-tech font-bold text-white uppercase">DİSCORD TİCKET İLE SATIN ALIM</h3>
+                    </div>
+                    <p class="text-gray-400 text-xs font-mono">Sitede hesap bilgisi yoktur; tüm siparişler bilette ogdovmesi ile alınır.</p>
+                </div>
+            </div>
+
+            <!-- Seçilen Paket Özeti -->
+            <div class="bg-gradient-to-r from-black/80 to-blue-950/40 rounded-2xl p-4 border border-[#00e5ff]/30 mb-4 flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] text-gray-400 font-mono uppercase block">Seçilen Tweak Paketi</span>
+                    <h4 id="ticket-plan-title" class="text-base sm:text-lg font-tech font-bold text-white uppercase">Sınırsız Lifetime VIP</h4>
+                    <span class="text-[11px] font-mono text-emerald-400"><i class="fa-solid fa-check mr-1"></i>Orijinal Lisans Key &amp; 7/24 Teknik Destek</span>
+                </div>
+                <div class="text-right">
+                    <span class="text-[10px] text-gray-400 font-mono block">Fiyat:</span>
+                    <span id="ticket-plan-price" class="text-2xl sm:text-3xl font-tech font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#00e5ff] via-sky-300 to-white">₺1.500</span>
+                </div>
+            </div>
+
+            <!-- MEKANİK 1: HAZIR BİLET MESAJ ŞABLONU & TEK TIK KOPYALAMA -->
+            <div class="bg-black/60 rounded-2xl p-4 border border-white/10 mb-4 space-y-2 font-mono">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs text-gray-200 font-bold flex items-center space-x-1.5">
+                        <i class="fa-solid fa-clipboard-list text-[#00e5ff]"></i>
+                        <span>HAZIR BİLET TALEP MESAJINIZ:</span>
+                    </span>
+                    <span class="text-[10px] text-gray-400 font-mono">Bilete Yapıştırılacak</span>
+                </div>
+                
+                <div class="relative">
+                    <textarea id="ticket-message-preview" readonly rows="2" class="w-full bg-black/90 border border-white/10 rounded-xl p-3 text-xs text-emerald-300 font-mono outline-none resize-none select-all"></textarea>
+                </div>
+
+                <button onclick="copyTicketMessage()" id="btn-copy-ticket-msg" class="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-mono text-xs font-bold transition flex items-center justify-center space-x-2 border border-white/10">
+                    <i class="fa-regular fa-copy text-[#00e5ff]"></i>
+                    <span id="btn-copy-ticket-text">BU MESAJI KOPYALA (TEK TIK)</span>
+                </button>
+            </div>
+
+            <!-- MEKANİK 2: ADIM ADIM SATIN ALIM TALİMATLARI -->
+            <div class="space-y-2.5 font-mono text-xs mb-5">
+                <span class="text-gray-400 text-[10px] uppercase font-bold tracking-wider block">BİLET AÇMA &amp; ETİKETLEME TALİMATLARI</span>
+                
+                <div class="bg-white/5 rounded-xl p-2.5 border border-white/5 flex items-start space-x-2.5">
+                    <span class="w-5 h-5 rounded-full bg-[#5865F2] text-white flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">1</span>
+                    <p class="text-gray-300">
+                        <strong class="text-white">Discord Sunucusuna Katılın:</strong> 
+                        <a href="https://discord.gg/kZDX8cfTp" target="_blank" class="text-[#00e5ff] underline font-bold">discord.gg/kZDX8cfTp</a> sunucusuna girin.
+                    </p>
+                </div>
+
+                <div class="bg-white/5 rounded-xl p-2.5 border border-white/5 flex items-start space-x-2.5">
+                    <span class="w-5 h-5 rounded-full bg-[#00e5ff] text-black flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">2</span>
+                    <p class="text-gray-300">
+                        <strong class="text-white">Ticket Açın:</strong> 
+                        <code class="text-[#00e5ff] font-bold">#satın-alım</code> kanalına giderek butona tıklayıp biletinizi oluşturun.
+                    </p>
+                </div>
+
+                <div class="bg-white/5 rounded-xl p-2.5 border border-white/5 flex items-start space-x-2.5 border-l-4 border-l-red-500">
+                    <span class="w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">3</span>
+                    <p class="text-gray-300">
+                        <strong class="text-white">ogdovmesi'yi Etiketleyin:</strong> 
+                        Açılan bilette Sunucu Sahibi 
+                        <span class="bg-[#5865F2]/30 text-blue-300 px-1.5 py-0.5 rounded font-bold cursor-pointer" onclick="navigator.clipboard.writeText('<@1116804738009272412>'); showToast('ogdovmesi etiketi kopyalandı!');" title="Etiketi Kopyala">@ogdovmesi</span>'ni etiketleyin ve kopyaladığınız mesajı yapıştırın.
+                    </p>
+                </div>
+
+                <div class="bg-white/5 rounded-xl p-2.5 border border-white/5 flex items-start space-x-2.5">
+                    <span class="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">4</span>
+                    <p class="text-gray-300">
+                        <strong class="text-white">Ödemeyi Bilette Yapıp Keyinizi Alın:</strong> 
+                        ogdovmesi size bilette ödeme bilgilerini iletir. Ödemeyi yapıp dekontu atın, 25 haneli lisans kodunuz anında teslim edilsin.
+                    </p>
+                </div>
+
+                <div class="bg-white/5 rounded-xl p-2.5 border border-white/5 flex items-start space-x-2.5">
+                    <span class="w-5 h-5 rounded-full bg-yellow-500 text-black flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">5</span>
+                    <p class="text-gray-300">
+                        <strong class="text-white">PIN İle İndirin:</strong> 
+                        Keyinizle sitemizdeki <a href="download.html" class="text-yellow-400 underline font-bold">PIN &amp; İndirme Portalı</a>'na girip tek seferlik PIN'inizi üreterek tweak'i indirin!
+                    </p>
+                </div>
+            </div>
+
+            <!-- EYLEM BUTONLARI -->
+            <div class="space-y-2.5">
+                <a href="https://discord.gg/kZDX8cfTp" target="_blank" class="discord-btn w-full py-3.5 rounded-xl font-tech font-extrabold text-sm text-white flex items-center justify-center space-x-2 uppercase shadow-xl shadow-[#5865F2]/30">
+                    <i class="fa-brands fa-discord text-xl"></i>
+                    <span>DİSCORD SUNUCUSUNA GİT &amp; TİCKET AÇ</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-xs ml-1"></i>
+                </a>
+
+                <a href="https://discord.com/users/1116804738009272412" target="_blank" class="w-full py-2.5 px-3 rounded-xl bg-red-600/20 hover:bg-red-600/30 border border-red-500/30 text-white font-tech font-bold text-xs flex items-center justify-center space-x-1.5 transition">
+                    <i class="fa-solid fa-crown text-yellow-400"></i>
+                    <span>OGDOVMESİ PROFİLİ (1116804738009272412)</span>
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ==================== HESAP GİRİŞ / KAYIT MODALI ==================== -->
+    <div id="auth-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-md w-full rounded-3xl p-6 sm:p-8 border border-white/20 relative shadow-2xl">
+            <button onclick="closeAuthModal()" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-nfaccent to-purple-600 flex items-center justify-center text-white text-xl font-bold mx-auto mb-3">
+                    <i class="fa-solid fa-user-lock"></i>
+                </div>
+                <h3 class="text-2xl font-tech font-bold text-white uppercase">MÜŞTERİ HESAP MERKEZİ</h3>
+                <p class="text-gray-400 text-xs font-mono mt-1">Lisanslarınızı güvenle saklamak ve yönetmek için giriş yapın.</p>
+            </div>
+
+            <!-- Giriş / Kayıt Sekmeleri -->
+            <div class="flex rounded-xl bg-black/60 p-1 mb-6 border border-white/10 text-xs font-mono">
+                <button onclick="setAuthTab('login')" id="tab-btn-login" class="flex-1 py-2 rounded-lg font-bold transition text-white bg-white/10">
+                    Giriş Yap
+                </button>
+                <button onclick="setAuthTab('register')" id="tab-btn-register" class="flex-1 py-2 rounded-lg font-bold transition text-gray-400 hover:text-white">
+                    Yeni Kayıt Ol
+                </button>
+            </div>
+
+            <!-- GİRİŞ FORMU -->
+            <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4 font-mono text-xs">
+                <div>
+                    <label class="block text-gray-400 mb-1.5 uppercase font-bold">Kullanıcı Adı</label>
+                    <input id="login-username" type="text" required placeholder="kullanici_adiniz" class="w-full bg-black/60 border border-white/15 rounded-xl px-4 py-3 text-white focus:border-nfaccent outline-none">
+                </div>
+                <div>
+                    <label class="block text-gray-400 mb-1.5 uppercase font-bold">Şifre</label>
+                    <input id="login-password" type="password" required placeholder="••••••••" class="w-full bg-black/60 border border-white/15 rounded-xl px-4 py-3 text-white focus:border-nfaccent outline-none">
+                </div>
+                <button type="submit" class="w-full py-3.5 rounded-xl font-tech font-extrabold text-sm text-nfdark bg-nfaccent hover:contrast-125 transition uppercase mt-2">
+                    GİRİŞ YAP
+                </button>
+            </form>
+
+            <!-- KAYIT FORMU -->
+            <form id="form-register" onsubmit="handleRegister(event)" class="hidden space-y-4 font-mono text-xs">
+                <div>
+                    <label class="block text-gray-400 mb-1.5 uppercase font-bold">Kullanıcı Adı</label>
+                    <input id="reg-username" type="text" required placeholder="en az 3 karakter" class="w-full bg-black/60 border border-white/15 rounded-xl px-4 py-3 text-white focus:border-nfaccent outline-none">
+                </div>
+                <div>
+                    <label class="block text-gray-400 mb-1.5 uppercase font-bold">Discord Kullanıcı Adınız</label>
+                    <input id="reg-discord" type="text" placeholder="örnek: mehmet#1234" class="w-full bg-black/60 border border-white/15 rounded-xl px-4 py-3 text-white focus:border-nfaccent outline-none">
+                </div>
+                <div>
+                    <label class="block text-gray-400 mb-1.5 uppercase font-bold">Şifre</label>
+                    <input id="reg-password" type="password" required placeholder="en az 4 karakter" class="w-full bg-black/60 border border-white/15 rounded-xl px-4 py-3 text-white focus:border-nfaccent outline-none">
+                </div>
+                <button type="submit" class="w-full py-3.5 rounded-xl font-tech font-extrabold text-sm text-white bg-nfviolet hover:brightness-110 transition uppercase mt-2">
+                    HESAP OLUŞTUR VE BAŞLA
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== SİPARİŞLERİM MODALI ==================== -->
+    <div id="my-orders-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-2xl w-full rounded-3xl p-6 sm:p-8 border border-white/20 relative shadow-2xl max-h-[85vh] flex flex-col">
+            <button onclick="closeMyOrdersModal()" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="w-12 h-12 rounded-2xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-xl font-bold">
+                    <i class="fa-solid fa-receipt"></i>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-tech font-bold text-white uppercase">SİPARİŞLERİM VE LİSANSLARIM</h3>
+                    <p class="text-gray-400 text-xs font-mono">Tüm siparişlerinizi, onay durumlarını ve lisans kodlarınızı inceleyin.</p>
+                </div>
+            </div>
+
+            <!-- Liste Konteyneri -->
+            <div id="my-orders-list" class="overflow-y-auto space-y-3 pr-1 flex-1 font-mono text-xs">
+                <div class="text-center py-10 text-gray-400">Yükleniyor...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bildirim Toast'u -->
+    <div id="toast" class="fixed bottom-6 right-6 px-5 py-3 rounded-xl bg-black/90 border border-nfaccent text-white text-xs font-mono shadow-2xl opacity-0 pointer-events-none transition-all duration-300 z-50 flex items-center space-x-2">
+        <i class="fa-solid fa-circle-check text-nfgreen text-sm"></i>
+        <span id="toast-msg">İşlem başarılı!</span>
+    </div>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="glass-panel border-t border-white/10 py-10 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center space-x-3">
+                <img src="assets/nf_logo.png" alt="NF Logo" class="h-9 w-auto object-contain drop-shadow-[0_0_12px_rgba(0,229,255,0.6)]">
+                <span class="font-tech text-lg font-bold text-white tracking-wide">NF<span class="text-nfaccent">TWEAKS</span> PERFORMANCE SUITE</span>
+            </div>
+            <div class="flex flex-wrap justify-center gap-6 text-xs font-mono text-gray-400">
+                <a href="index.html" class="hover:text-nfaccent transition">Tweak Tanıtımı</a>
+                <a href="pricing.html" class="hover:text-nfaccent transition">Fiyatlandırma</a>
+                <a href="server.html" class="hover:text-nfaccent transition">Sunucu & Discord</a>
+                <a href="download.html" class="hover:text-nfaccent transition">PIN İle İndir</a>
+                <a href="admin.html" class="hover:text-yellow-400 transition">👑 Yönetim Paneli</a>
+            </div>
+            <p class="text-xs text-gray-500 font-mono">
+                &copy; 2026 NF Technologies Inc. Tüm hakları saklıdır.
+            </p>
+        </div>
+    </footer>
+
+    <!-- ==================== JAVASCRIPT: AUTH & SİPARİŞ SİSTEMİ ==================== -->
+    <script>
+        let currentPlan = 'lifetime';
+        let currentPlanTitle = 'Sınırsız Lifetime VIP';
+        let currentPlanPrice = 1500;
+        let currentUser = null;
+        let activeOrderId = null;
+        let pollTimer = null;
+
+        let paymentSettings = {
+            discord_invite: "discord.gg/kZDX8cfTp",
+            note: "Ödemeler yalnızca resmi Discord sunucumuzda ticket üzerinden Sunucu Sahibi (ogdovmesi) ile teyit edilerek alınır."
+        };
+
+        async function loadPaymentSettings() {
+            try {
+                const res = await fetch('/api/payment-settings');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.settings) paymentSettings = data.settings;
+                }
+            } catch(e) {}
+        }
+
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            toastMsg.textContent = msg;
+            toast.className = `fixed bottom-6 right-6 px-5 py-3 rounded-xl bg-black/90 border ${isError ? 'border-red-500 text-red-300' : 'border-[#00e5ff] text-white'} text-xs font-mono shadow-2xl transition-all duration-300 z-50 flex items-center space-x-2`;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        async function checkAuth() {
+            const token = localStorage.getItem('nf_token');
+            if (!token) {
+                currentUser = null;
+                return null;
+            }
+            try {
+                const res = await fetch('/api/auth/me', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    currentUser = data.user;
+                    return currentUser;
+                } else {
+                    localStorage.removeItem('nf_token');
+                    currentUser = null;
+                    return null;
+                }
+            } catch (e) {
+                currentUser = null;
+                return null;
+            }
+        }
+
+        async function openTicketModal(plan, title, price) {
+            currentPlan = plan;
+            currentPlanTitle = title;
+            currentPlanPrice = price;
+
+            document.getElementById('ticket-plan-title').textContent = title;
+            document.getElementById('ticket-plan-price').textContent = '₺' + price.toLocaleString('tr-TR');
+
+            const templateMsg = `Merhaba @ogdovmesi, NF Tweaks ${title} (₺${price.toLocaleString('tr-TR')}) paketini satın almak istiyorum. Ödeme yapmaya hazırım, lisans onayımı ve key teslimatımı rica ederim.`;
+            const previewEl = document.getElementById('ticket-message-preview');
+            if (previewEl) previewEl.value = templateMsg;
+
+            const btnText = document.getElementById('btn-copy-ticket-text');
+            if (btnText) btnText.textContent = 'BU MESAJI KOPYALA (TEK TIK)';
+
+            document.getElementById('ticket-modal').classList.remove('hidden');
+        }
+
+        function closeTicketModal() {
+            document.getElementById('ticket-modal').classList.add('hidden');
+        }
+
+        // Backward compatibility
+        function openCheckoutModal(plan, title, price) {
+            return openTicketModal(plan, title, price);
+        }
+
+        function closeCheckoutModal() {
+            return closeTicketModal();
+        }
+
+        function copyTicketMessage() {
+            const previewEl = document.getElementById('ticket-message-preview');
+            if (!previewEl) return;
+            navigator.clipboard.writeText(previewEl.value).then(() => {
+                const btnText = document.getElementById('btn-copy-ticket-text');
+                if (btnText) btnText.textContent = '✓ KOPYALANDI! DİSCORD BİLETİNE YAPIŞTIRIN';
+                showToast('Bilet mesajı panoya kopyalandı! Discord biletine yapıştırabilirsiniz.');
+                setTimeout(() => {
+                    if (btnText) btnText.textContent = 'BU MESAJI KOPYALA (TEK TIK)';
+                }, 3000);
+            });
+        }
+
+        function closeTicketModal() {
+            document.getElementById('ticket-modal').classList.add('hidden');
+        }
+
+        // Backward compatibility
+        function openCheckoutModal(plan, title, price) {
+            return openTicketModal(plan, title, price);
+        }
+
+        function closeCheckoutModal() {
+            return closeTicketModal();
+        }
+
+        // AUTH MODAL FUNCTIONS
+        function openAuthModal() {
+            document.getElementById('auth-modal').classList.remove('hidden');
+        }
+
+        function closeAuthModal() {
+            document.getElementById('auth-modal').classList.add('hidden');
+        }
+
+        function setAuthTab(tab) {
+            const tabLogin = document.getElementById('tab-btn-login');
+            const tabReg = document.getElementById('tab-btn-register');
+            const formLogin = document.getElementById('form-login');
+            const formReg = document.getElementById('form-register');
+
+            if (tab === 'login') {
+                tabLogin.className = 'flex-1 py-2 rounded-lg font-bold transition text-white bg-white/10';
+                tabReg.className = 'flex-1 py-2 rounded-lg font-bold transition text-gray-400 hover:text-white';
+                formLogin.classList.remove('hidden');
+                formReg.classList.add('hidden');
+            } else {
+                tabReg.className = 'flex-1 py-2 rounded-lg font-bold transition text-white bg-white/10';
+                tabLogin.className = 'flex-1 py-2 rounded-lg font-bold transition text-gray-400 hover:text-white';
+                formReg.classList.remove('hidden');
+                formLogin.classList.add('hidden');
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const uname = document.getElementById('login-username').value.trim();
+            const pwd = document.getElementById('login-password').value.trim();
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: uname, password: pwd })
+                });
+                const data = await res.json();
+                if (res.ok && data.status === 'success') {
+                    localStorage.setItem('nf_token', data.token);
+                    currentUser = data.user;
+                    closeAuthModal();
+                    showToast(`Hoş geldiniz, ${data.user.username}!`);
+                    // Open checkout if a plan was clicked
+                    openCheckoutModal(currentPlan, currentPlanTitle, currentPlanPrice);
+                } else {
+                    showToast(data.message || 'Giriş başarısız!', true);
+                }
+            } catch (err) {
+                showToast('Sunucu bağlantı hatası!', true);
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const uname = document.getElementById('reg-username').value.trim();
+            const discord = document.getElementById('reg-discord').value.trim();
+            const pwd = document.getElementById('reg-password').value.trim();
+
+            try {
+                const res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: uname, discord_tag: discord, password: pwd })
+                });
+                const data = await res.json();
+                if (res.ok && data.status === 'success') {
+                    localStorage.setItem('nf_token', data.token);
+                    currentUser = data.user;
+                    closeAuthModal();
+                    showToast('Hesabınız başarıyla oluşturuldu!');
+                    openCheckoutModal(currentPlan, currentPlanTitle, currentPlanPrice);
+                } else {
+                    showToast(data.message || 'Kayıt başarısız!', true);
+                }
+            } catch (err) {
+                showToast('Sunucu bağlantı hatası!', true);
+            }
+        }
+
+        // MY ORDERS MODAL
+        async function openMyOrdersModal() {
+            const user = await checkAuth();
+            if (!user) {
+                openAuthModal();
+                return;
+            }
+            const modal = document.getElementById('my-orders-modal');
+            const list = document.getElementById('my-orders-list');
+            modal.classList.remove('hidden');
+            list.innerHTML = '<div class="text-center py-8 text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Siparişleriniz yükleniyor...</div>';
+
+            try {
+                const res = await fetch('/api/orders/my-orders', {
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('nf_token') }
+                });
+                const data = await res.json();
+                if (res.ok && data.orders && data.orders.length > 0) {
+                    list.innerHTML = data.orders.map(o => {
+                        const isApproved = o.status === 'approved';
+                        return `
+                            <div class="bg-black/50 p-4 rounded-2xl border ${isApproved ? 'border-emerald-500/30 glow-border-green' : 'border-yellow-500/30'} flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                <div>
+                                    <div class="flex items-center space-x-2 mb-1">
+                                        <span class="text-white font-bold text-sm uppercase">${o.plan_label}</span>
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isApproved ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'}">
+                                            ${isApproved ? '✅ ONAYLANDI' : '⏳ OWNER ONAYI BEKLİYOR'}
+                                        </span>
+                                    </div>
+                                    <div class="text-[11px] text-gray-400 space-x-3">
+                                        <span>No: <strong>${o.id}</strong></span>
+                                        <span>Tutar: <strong class="text-white">₺${o.price}</strong></span>
+                                        <span>Tarih: ${o.created_at}</span>
+                                    </div>
+                                    <div class="mt-2 text-xs font-mono font-bold tracking-wider ${isApproved ? 'text-emerald-400' : 'text-gray-400'}">
+                                        Lisans: <code>${o.key}</code>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2 shrink-0">
+                                    ${isApproved ? `
+                                        <button onclick="navigator.clipboard.writeText('${o.key}'); showToast('Lisans anahtarı kopyalandı!');" class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition text-xs font-bold flex items-center space-x-1">
+                                            <i class="fa-regular fa-copy"></i>
+                                            <span>Kopyala</span>
+                                        </button>
+                                        <a href="download.html?key=${encodeURIComponent(o.key)}" class="px-4 py-2 rounded-xl bg-nfaccent hover:contrast-125 text-nfdark transition text-xs font-bold uppercase flex items-center space-x-1">
+                                            <i class="fa-solid fa-download"></i>
+                                            <span>PIN Al & İndir</span>
+                                        </a>
+                                    ` : `
+                                        <span class="text-[11px] text-yellow-400 font-mono flex items-center space-x-1">
+                                            <i class="fa-solid fa-hourglass-half animate-pulse"></i>
+                                            <span>OGDovmesi Onaylayacak</span>
+                                        </span>
+                                    `}
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    list.innerHTML = `
+                        <div class="text-center py-12 text-gray-400 space-y-3">
+                            <i class="fa-solid fa-box-open text-4xl text-gray-600 block"></i>
+                            <p>Henüz verilmiş bir siparişiniz bulunmuyor.</p>
+                            <button onclick="closeMyOrdersModal()" class="px-5 py-2.5 rounded-xl bg-nfaccent text-nfdark font-tech font-bold text-xs uppercase">
+                                Paketleri İncele
+                            </button>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                list.innerHTML = '<div class="text-center py-8 text-red-400">Siparişler yüklenirken hata oluştu!</div>';
+            }
+        }
+
+        function closeMyOrdersModal() {
+            document.getElementById('my-orders-modal').classList.add('hidden');
+        }
+
+        // Sayfa yüklendiğinde oturumu kontrol et
+        window.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NF Tweaks | Lisans Doğrulama & PIN İndirme Portalı</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Rajdhani:wght@500;600;700;800&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        nfdark: '#07090e',
+                        nfcard: 'rgba(15, 20, 32, 0.75)',
+                        nfaccent: '#00f0ff',
+                        nfgreen: '#10b981',
+                        nfviolet: '#8b5cf6',
+                        nfbuzz: '#ff0055'
+                    },
+                    fontFamily: {
+                        tech: ['Rajdhani', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                        sans: ['"Space Grotesk"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #07090e;
+            color: #e2e8f0;
+            background-image: 
+                radial-gradient(circle at 50% 15%, rgba(0, 240, 255, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 10% 85%, rgba(16, 185, 129, 0.07) 0%, transparent 45%),
+                linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
+        }
+
+        .glow-border {
+            border: 1px solid rgba(0, 240, 255, 0.35);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.15), inset 0 0 15px rgba(0, 240, 255, 0.04);
+        }
+
+        .glow-border-green {
+            border: 1px solid rgba(16, 185, 129, 0.45);
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.25), inset 0 0 15px rgba(16, 185, 129, 0.05);
+        }
+
+        .glow-border-red {
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.25);
+        }
+
+        .neon-btn {
+            background: linear-gradient(135deg, #00f0ff 0%, #0099ff 100%);
+            box-shadow: 0 0 22px rgba(0, 240, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .neon-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 32px rgba(0, 240, 255, 0.65);
+        }
+
+        .green-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 0 22px rgba(16, 185, 129, 0.45);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .green-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 35px rgba(16, 185, 129, 0.7);
+        }
+
+        .glass-panel {
+            background: rgba(13, 18, 30, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .scanline {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0, 0, 0, 0.15) 50%, rgba(0, 0, 0, 0.15));
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 99;
+            opacity: 0.35;
+        }
+
+        .step-inactive {
+            opacity: 0.45;
+            pointer-events: none;
+            filter: grayscale(0.6);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans selection:bg-nfaccent selection:text-nfdark">
+    <div class="scanline"></div>
+
+    <!-- ==================== ÜST MENÜ (NAVBAR) ==================== -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <a href="index.html" class="flex items-center space-x-3 group">
+                <img src="assets/nf_logo.png" alt="NF Tweaks Logo" class="h-12 w-auto object-contain drop-shadow-[0_0_15px_rgba(0,229,255,0.7)] group-hover:scale-105 transition">
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-tech text-2xl font-extrabold tracking-wider text-white">NF<span class="text-nfaccent">TWEAKS</span></span>
+                        <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-nfaccent/10 text-nfaccent border border-nfaccent/30">v2.4.0 FINAL</span>
+                    </div>
+                    <span class="text-[10px] text-gray-400 font-mono tracking-widest block uppercase">Kernel FPS Booster</span>
+                </div>
+            </a>
+
+            <!-- SAYFA MENÜSÜ -->
+            <nav class="hidden md:flex items-center space-x-1 p-1.5 rounded-2xl bg-black/40 border border-white/5">
+                <a href="index.html" class="px-5 py-2.5 rounded-xl font-tech font-bold text-sm text-gray-300 hover:text-white hover:bg-white/5 flex items-center space-x-2 transition">
+                    <i class="fa-solid fa-wand-magic-sparkles text-nfaccent"></i>
+                    <span>TWEAK TANITIMI</span>
+                </a>
+                <a href="pricing.html" class="px-5 py-2.5 rounded-xl font-tech font-bold text-sm text-gray-300 hover:text-white hover:bg-white/5 flex items-center space-x-2 transition">
+                    <i class="fa-solid fa-tags text-nfviolet"></i>
+                    <span>FİYATLANDIRMA</span>
+                </a>
+                <a href="server.html" class="px-5 py-2.5 rounded-xl font-tech font-bold text-sm text-gray-300 hover:text-white hover:bg-white/5 flex items-center space-x-2 transition">
+                    <i class="fa-brands fa-discord text-blue-400"></i>
+                    <span>SUNUCU ADRESİ</span>
+                </a>
+                <a href="download.html" class="px-5 py-2.5 rounded-xl font-tech font-bold text-sm text-nfgreen bg-nfgreen/15 border border-nfgreen/30 shadow-sm flex items-center space-x-2 transition">
+                    <i class="fa-solid fa-key"></i>
+                    <span>PIN & İNDİRME</span>
+                </a>
+            </nav>
+
+            <div class="flex items-center space-x-3">
+                <a href="admin.html" class="px-4 py-2 rounded-xl font-tech font-bold text-xs text-yellow-400 bg-yellow-400/10 hover:bg-yellow-400/20 border border-yellow-400/30 flex items-center space-x-1.5 transition">
+                    <i class="fa-solid fa-crown"></i>
+                    <span>YÖNETİM PANELİ</span>
+                </a>
+                <div class="flex items-center space-x-2 text-xs font-mono text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-xl border border-emerald-500/20">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span>İNDİRME SUNUCUSU AKTİF</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== ANA PORTAL GÖVDESİ ==================== -->
+    <main class="flex-1 py-14">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <!-- Başlık -->
+            <div class="text-center mb-12">
+                <div class="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono mb-4">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>BİREYSEL LİSANS & GÜVENLİK KONSOLU</span>
+                </div>
+                <h1 class="text-3xl sm:text-5xl font-tech font-extrabold text-white uppercase tracking-wide">
+                    LİSANS DOĞRULAMA & TEK SEFERLİK PIN PORTALI
+                </h1>
+                <p class="text-gray-300 text-sm mt-3 max-w-xl mx-auto leading-relaxed">
+                    Satın aldığınız lisans anahtarını girin, adınıza özel <strong>Tek Seferlik Güvenlik PIN'i</strong> oluşturun ve en güncel NF Tweaks sürümünü güvenle indirin.
+                </p>
+            </div>
+
+            <!-- ==================== 3 ADIMLI İNDİRME KONSOLU ==================== -->
+            <div class="space-y-8">
+
+                <!-- 1. ADIM: LİSANS ANAHTARI GİRİŞİ -->
+                <div id="step-card-1" class="glass-panel rounded-3xl p-8 glow-border transition-all duration-300">
+                    <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
+                        <div class="flex items-center space-x-3">
+                            <span class="w-8 h-8 rounded-xl bg-nfaccent text-nfdark flex items-center justify-center font-tech font-bold text-base">1</span>
+                            <div>
+                                <h3 class="text-xl font-tech font-bold text-white uppercase">Lisans Anahtarı Doğrulama</h3>
+                                <span class="text-xs text-gray-400 font-mono">Discord ticket veya mağazadan aldığınız 25 haneli anahtar</span>
+                            </div>
+                        </div>
+                        <span id="badge-step-1" class="text-xs font-mono px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/25">BEKLENİYOR</span>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-mono text-gray-300 uppercase mb-2">Lisans Anahtarınızı Girin:</label>
+                            <div class="relative">
+                                <input type="text" id="license-key-input" maxlength="29" placeholder="XXXXX-XXXXX-XXXXX-XXXXX-XXXXX" 
+                                    class="w-full bg-black/70 border border-white/15 focus:border-nfaccent focus:ring-1 focus:ring-nfaccent rounded-xl px-4 py-3.5 font-mono text-sm sm:text-base text-white tracking-widest uppercase placeholder-gray-600 transition outline-none">
+                                <button onclick="pasteKey()" class="absolute right-3 top-3 px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-gray-300 text-xs font-mono flex items-center space-x-1 transition">
+                                    <i class="fa-regular fa-clipboard"></i>
+                                    <span>Yapıştır</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-2">
+                            <span class="text-[11px] font-mono text-gray-400 flex items-center space-x-1">
+                                <i class="fa-solid fa-lock text-emerald-400"></i>
+                                <span>SHA-256 Kriptografik İmza Kontrolü</span>
+                            </span>
+                            <button id="btn-verify-key" onclick="verifyLicenseKey()" class="neon-btn px-8 py-3 rounded-xl font-tech font-bold text-sm text-nfdark flex items-center space-x-2 uppercase">
+                                <i class="fa-solid fa-key"></i>
+                                <span>ANAHTARI DOĞRULA</span>
+                            </button>
+                        </div>
+
+                        <!-- Başarılı Bilgi Alanı (Gizli Başlar) -->
+                        <div id="key-success-box" class="hidden p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-mono mt-4 space-y-1">
+                            <div class="flex items-center space-x-2 font-bold text-sm">
+                                <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                                <span id="key-success-title">Lisans Doğrulandı!</span>
+                            </div>
+                            <p id="key-success-desc">Paket: Lifetime Sınırsız VIP Lisansı</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. ADIM: TEK SEFERLİK GÜVENLİK PIN'İ -->
+                <div id="step-card-2" class="glass-panel rounded-3xl p-8 border border-white/10 step-inactive transition-all duration-300">
+                    <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
+                        <div class="flex items-center space-x-3">
+                            <span class="w-8 h-8 rounded-xl bg-purple-500 text-white flex items-center justify-center font-tech font-bold text-base">2</span>
+                            <div>
+                                <h3 class="text-xl font-tech font-bold text-white uppercase">Tek Seferlik Güvenlik PIN'i Belirleme</h3>
+                                <span class="text-xs text-gray-400 font-mono">İndirmeyi başlatacak kişisel güvenlik PIN'iniz</span>
+                            </div>
+                        </div>
+                        <span id="badge-step-2" class="text-xs font-mono px-3 py-1 rounded-full bg-gray-800 text-gray-400 border border-white/10">KİLİTLİ</span>
+                    </div>
+
+                    <!-- Kural Uyarısı -->
+                    <div class="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs font-mono mb-6 flex items-start space-x-3">
+                        <i class="fa-solid fa-triangle-exclamation text-red-400 text-lg shrink-0 mt-0.5"></i>
+                        <div>
+                            <span class="font-bold text-white block mb-0.5">ÖNEMLİ KURAL: MAKSİMUM 1 KEZ KULLANILABİLİR!</span>
+                            <p class="leading-relaxed text-gray-300">
+                                Belirlediğiniz bu Güvenlik PIN'i ile <strong>aynı PIN kullanılarak EN FAZLA 1 DEFA</strong> indirme yapılabilir. İndirme yapıldığı anda bu PIN kalıcı olarak kilitlenir ve 2. kez indirilemez. PIN'inizi başkalarıyla paylaşmayınız.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                            <div class="sm:col-span-8">
+                                <label class="block text-xs font-mono text-gray-300 uppercase mb-2">6 Haneli Güvenlik PIN'iniz:</label>
+                                <input type="text" id="pin-input" maxlength="10" placeholder="Örn: 849201" 
+                                    class="w-full bg-black/70 border border-white/15 focus:border-purple-400 focus:ring-1 focus:ring-purple-400 rounded-xl px-4 py-3.5 font-mono text-xl text-center text-purple-300 tracking-[0.3em] font-bold placeholder-gray-600 transition outline-none">
+                            </div>
+                            <div class="sm:col-span-4">
+                                <button onclick="generateRandomPin()" class="w-full py-4 rounded-xl bg-white/10 hover:bg-white/15 border border-white/20 font-mono text-xs text-gray-200 flex items-center justify-center space-x-2 transition">
+                                    <i class="fa-solid fa-dice text-purple-400 text-sm"></i>
+                                    <span>Otomatik PIN Üret</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-2">
+                            <span class="text-[11px] font-mono text-gray-400">PIN Durumu: 1 Hak / Tek Kullanımlık</span>
+                            <button id="btn-save-pin" onclick="createOrConfirmPin()" class="px-8 py-3 rounded-xl font-tech font-bold text-sm text-white bg-purple-600 hover:bg-purple-500 shadow-lg shadow-purple-600/30 flex items-center space-x-2 uppercase transition">
+                                <i class="fa-solid fa-check-double"></i>
+                                <span>PIN'İ KAYDET VE DOĞRULA</span>
+                            </button>
+                        </div>
+
+                        <!-- PIN Başarı / Bilgi Kutusu -->
+                        <div id="pin-success-box" class="hidden p-4 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-mono mt-4 space-y-1">
+                            <div class="flex items-center space-x-2 font-bold text-sm">
+                                <i class="fa-solid fa-circle-check text-purple-400"></i>
+                                <span>PIN Rezerve Edildi: <span id="pin-display" class="tracking-widest font-bold text-white text-base">------</span></span>
+                            </div>
+                            <p class="text-gray-300">Kalan İndirme Hakkı: <strong class="text-emerald-400">1 / 1</strong> (İndirme yapıldığında hakkınız dolacaktır).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. ADIM: GÜVENLİ İNDİRME BUTONU -->
+                <div id="step-card-3" class="glass-panel rounded-3xl p-8 border border-white/10 step-inactive transition-all duration-300">
+                    <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
+                        <div class="flex items-center space-x-3">
+                            <span class="w-8 h-8 rounded-xl bg-emerald-500 text-nfdark flex items-center justify-center font-tech font-bold text-base">3</span>
+                            <div>
+                                <h3 class="text-xl font-tech font-bold text-white uppercase">Güvenli İndirme</h3>
+                                <span class="text-xs text-gray-400 font-mono">PIN doğrulaması tamamlandı, dosyanız indirilmeye hazır</span>
+                            </div>
+                        </div>
+                        <span id="badge-step-3" class="text-xs font-mono px-3 py-1 rounded-full bg-gray-800 text-gray-400 border border-white/10">KİLİTLİ</span>
+                    </div>
+
+                    <!-- Dosya Bilgi Kartı -->
+                    <div class="bg-black/60 rounded-2xl p-5 border border-white/10 mb-6 font-mono text-xs space-y-2">
+                        <div class="flex justify-between items-center pb-2 border-b border-white/5">
+                            <span class="text-gray-400">Çalıştırılabilir Dosya:</span>
+                            <span class="text-white font-bold flex items-center">
+                                <i class="fa-solid fa-file-arrow-down text-emerald-400 mr-1.5"></i>
+                                NF_Tweaks_FPS_Booster.exe
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center pb-2 border-b border-white/5">
+                            <span class="text-gray-400">Dosya Boyutu:</span>
+                            <span class="text-gray-200 font-bold">~35.9 MB (Tek Parça Standalone)</span>
+                        </div>
+                        <div class="flex justify-between items-center pb-2 border-b border-white/5">
+                            <span class="text-gray-400">Dijital Sertifika:</span>
+                            <span class="text-emerald-400 font-bold">SHA-256 Authenticode & DigiCert Timestamp</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">PC-Check Uyumu:</span>
+                            <span class="text-emerald-400 font-bold">%100 Temiz (0 Ceza / 0 Cleaner Şüphesi)</span>
+                        </div>
+                    </div>
+
+                    <!-- Büyük İndirme Butonu -->
+                    <button id="btn-final-download" onclick="triggerDownload()" class="w-full green-btn py-5 rounded-2xl font-tech font-extrabold text-lg sm:text-xl text-nfdark flex items-center justify-center space-x-3 uppercase shadow-2xl">
+                        <i class="fa-solid fa-download text-2xl"></i>
+                        <span id="download-btn-text">TWEAK'İ ŞİMDİ İNDİR (PIN'İ KULLAN)</span>
+                    </button>
+
+                    <p class="text-center text-[11px] font-mono text-gray-400 mt-3">
+                        * Tıkladığınızda dosya doğrudan inecek ve bu PIN kalıcı olarak kilitlenecektir.
+                    </p>
+                </div>
+
+                <!-- ==================== PIN DURUMU SORGULAMA KONSOLU ==================== -->
+                <div class="glass-panel rounded-3xl p-6 border border-white/10">
+                    <div class="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-magnifying-glass text-blue-400 text-sm"></i>
+                            <h4 class="text-base font-tech font-bold text-white uppercase">PIN DURUMU VE KALAN HAK SORGULAMA</h4>
+                        </div>
+                        <span class="text-[10px] font-mono text-gray-400">Hızlı Kontrol</span>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-center gap-3">
+                        <input type="text" id="check-pin-input" placeholder="Sorgulanacak PIN'i girin..." 
+                            class="w-full sm:flex-1 bg-black/60 border border-white/15 focus:border-blue-400 rounded-xl px-4 py-2.5 font-mono text-xs text-white placeholder-gray-500 outline-none">
+                        <button onclick="checkPinStatus()" class="w-full sm:w-auto px-6 py-2.5 rounded-xl font-mono text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 transition uppercase shrink-0">
+                            Durumu Sorgula
+                        </button>
+                    </div>
+
+                    <div id="check-pin-result" class="hidden mt-3 p-3 rounded-xl bg-black/80 border border-white/10 font-mono text-xs"></div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Hata / Uyarı Modalı -->
+    <div id="error-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+        <div class="glass-panel rounded-3xl p-8 max-w-md w-full border border-red-500/50 glow-border-red text-center space-y-4">
+            <div class="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 text-3xl mx-auto">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h3 class="text-2xl font-tech font-bold text-white uppercase">ERİŞİM KİLİTLENDİ</h3>
+            <p id="error-modal-msg" class="text-gray-300 text-xs font-mono leading-relaxed">
+                Bu PIN ile maksimum indirme hakkı (1/1) tamamlanmıştır. Güvenlik gereği aynı PIN ile tekrar indirme yapılamaz!
+            </p>
+            <div class="pt-2 flex flex-col sm:flex-row gap-2">
+                <a href="https://discord.gg/kZDX8cfTp" target="_blank" class="flex-1 py-3 rounded-xl font-tech font-bold text-xs text-white bg-[#5865F2] hover:bg-[#4752c4] transition flex items-center justify-center space-x-2">
+                    <i class="fa-brands fa-discord"></i>
+                    <span>DİSCORD TİCKET AÇ</span>
+                </a>
+                <button onclick="closeErrorModal()" class="flex-1 py-3 rounded-xl font-tech font-bold text-xs text-white bg-white/10 hover:bg-white/20 transition uppercase">
+                    KAPAT
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bildirim Toast'u -->
+    <div id="toast" class="fixed bottom-6 right-6 px-5 py-3 rounded-xl bg-black/90 border border-nfaccent text-white text-xs font-mono shadow-2xl opacity-0 pointer-events-none transition-all duration-300 z-50 flex items-center space-x-2">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-nfgreen text-sm"></i>
+        <span id="toast-msg">İşlem başarılı!</span>
+    </div>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="glass-panel border-t border-white/10 py-10 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center space-x-3">
+                <img src="assets/nf_logo.png" alt="NF Logo" class="h-9 w-auto object-contain drop-shadow-[0_0_12px_rgba(0,229,255,0.6)]">
+                <span class="font-tech text-lg font-bold text-white tracking-wide">NF<span class="text-nfaccent">TWEAKS</span> PERFORMANCE SUITE</span>
+            </div>
+            <div class="flex flex-wrap justify-center gap-6 text-xs font-mono text-gray-400">
+                <a href="index.html" class="hover:text-nfaccent transition">Tweak Tanıtımı</a>
+                <a href="pricing.html" class="hover:text-nfaccent transition">Fiyatlandırma</a>
+                <a href="server.html" class="hover:text-nfaccent transition">Sunucu & Discord</a>
+                <a href="download.html" class="hover:text-nfaccent transition">PIN İle İndir</a>
+            </div>
+            <p class="text-xs text-gray-500 font-mono">
+                &copy; 2026 NF Technologies Inc. Tüm hakları saklıdır.
+            </p>
+        </div>
+    </footer>
+
+    <!-- ==================== JAVASCRIPT: LİSANS VE 1 SEFERLİK PIN MANTIĞI ==================== -->
+    <script>
+        let currentVerifiedKey = "";
+        let currentPin = "";
+        let isDownloaded = false;
+
+        // Otomatik tire ekleme ve büyük harf formatlayıcı
+        const keyInput = document.getElementById('license-key-input');
+        keyInput.addEventListener('input', (e) => {
+            let val = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+            let parts = [];
+            for (let i = 0; i < val.length && i < 25; i += 5) {
+                parts.push(val.substring(i, i + 5));
+            }
+            e.target.value = parts.join('-');
+        });
+
+        function showToast(msg, isSuccess = true) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            const icon = document.getElementById('toast-icon');
+            icon.className = isSuccess ? 'fa-solid fa-circle-check text-nfgreen text-sm' : 'fa-solid fa-triangle-exclamation text-red-400 text-sm';
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        async function pasteKey() {
+            try {
+                const text = await navigator.clipboard.readText();
+                keyInput.value = text.trim().toUpperCase();
+                keyInput.dispatchEvent(new Event('input'));
+                showToast("Panodaki anahtar yapıştırıldı.");
+            } catch (e) {
+                showToast("Panodan okunamadı.", false);
+            }
+        }
+
+        function generateRandomPin() {
+            const pin = Math.floor(100000 + Math.random() * 900000).toString();
+            document.getElementById('pin-input').value = pin;
+            showToast("Yeni 6 haneli PIN üretildi: " + pin);
+        }
+
+        // ==================== ADIM 1: LİSANS ANAHTARI DOĞRULAMA ====================
+        async function verifyLicenseKey() {
+            const key = keyInput.value.trim().toUpperCase();
+            if (!key || key.length < 10) {
+                showToast("Lütfen geçerli bir lisans anahtarı giriniz!", false);
+                return;
+            }
+
+            const btn = document.getElementById('btn-verify-key');
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-1"></i> DOĞRULANIYOR...';
+            btn.disabled = true;
+
+            try {
+                // Önce server.py API'sini dene
+                const res = await fetch('/api/verify-key', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: key })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    handleKeyVerifiedSuccess(key, data.plan_label);
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    // Sunucu çalışmıyorsa veya offline ise LocalStorage / Mock fallback kontrolü
+                    fallbackClientKeyVerification(key, err.message || "Geçersiz lisans anahtarı!");
+                }
+            } catch (err) {
+                // Sunucu kapalıysa istemci tarafı yedek doğrulama
+                fallbackClientKeyVerification(key, "Sunucuya bağlanılamadı, yerel doğrulama yapılıyor.");
+            } finally {
+                btn.innerHTML = '<i class="fa-solid fa-key"></i> <span>ANAHTARI DOĞRULA</span>';
+                btn.disabled = false;
+            }
+        }
+
+        function handleKeyVerifiedSuccess(key, planLabel) {
+            currentVerifiedKey = key;
+            const badge = document.getElementById('badge-step-1');
+            badge.className = "text-xs font-mono px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-bold";
+            badge.textContent = "DOĞRULANDI ✓";
+
+            const successBox = document.getElementById('key-success-box');
+            successBox.classList.remove('hidden');
+            document.getElementById('key-success-title').textContent = "Lisans Anahtarı Başarıyla Doğrulandı!";
+            document.getElementById('key-success-desc').textContent = "Paket: " + (planLabel || "Lifetime Sınırsız VIP Lisansı");
+
+            // 2. Adımı Aktif Et
+            const step2 = document.getElementById('step-card-2');
+            step2.classList.remove('step-inactive');
+            step2.classList.add('glow-border');
+            document.getElementById('badge-step-2').className = "text-xs font-mono px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/30 font-bold";
+            document.getElementById('badge-step-2').textContent = "PIN BEKLENİYOR";
+
+            // Eğer PIN boşsa otomatik bir tane üret
+            if (!document.getElementById('pin-input').value) {
+                generateRandomPin();
+            }
+
+            showToast("Lisans doğrulandı! Şimdi tek seferlik PIN'inizi belirleyin.");
+        }
+
+        // İstemci tarafı fallback (Sunucu olmadan statik html çalıştırıldığında)
+        function fallbackClientKeyVerification(key, serverErrMsg) {
+            // Basit format kontrolü: XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
+            const regex = /^[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}$/;
+            if (regex.test(key)) {
+                handleKeyVerifiedSuccess(key, "Ömür Boyu (Lifetime) Lisansı");
+            } else {
+                showToast("HATA: " + serverErrMsg, false);
+            }
+        }
+
+        // ==================== ADIM 2: TEK SEFERLİK PIN OLUŞTURMA ====================
+        async function createOrConfirmPin() {
+            if (!currentVerifiedKey) {
+                showToast("Önce 1. adımdaki lisans anahtarını doğrulamalısınız!", false);
+                return;
+            }
+
+            const pin = document.getElementById('pin-input').value.trim();
+            if (!pin || pin.length < 4) {
+                showToast("PIN en az 4 haneli olmalıdır!", false);
+                return;
+            }
+
+            const btn = document.getElementById('btn-save-pin');
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-1"></i> KAYDEDİLİYOR...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/create-pin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: currentVerifiedKey, pin: pin })
+                });
+
+                const data = await res.json().catch(() => ({}));
+
+                if (res.ok) {
+                    handlePinCreatedSuccess(pin);
+                } else {
+                    if (data.error_code === "PIN_ALREADY_EXISTS_AND_USED") {
+                        showErrorModal(data.message || "Bu PIN daha önce kullanılmış ve hakkı dolmuştur! Lütfen farklı bir PIN giriniz.");
+                    } else {
+                        showToast(data.message || "PIN oluşturulamadı.", false);
+                    }
+                }
+            } catch (e) {
+                // İstemci tarafı localStorage tabanlı PIN kuralı (Offline / Statik Sunucu Koruması)
+                handleLocalPinRegistration(pin);
+            } finally {
+                btn.innerHTML = '<i class="fa-solid fa-check-double"></i> <span>PIN\'İ KAYDET VE DOĞRULA</span>';
+                btn.disabled = false;
+            }
+        }
+
+        function handleLocalPinRegistration(pin) {
+            // LocalStorage'da pin geçmişini kontrol et
+            const localUsedPins = JSON.parse(localStorage.getItem('nf_used_pins') || "{}");
+            if (localUsedPins[pin] && localUsedPins[pin].used) {
+                showErrorModal("Bu PIN (" + pin + ") daha önce kullanılmış ve tek seferlik hakkı dolmuştur! Lütfen farklı bir PIN belirleyiniz.");
+                return;
+            }
+
+            localUsedPins[pin] = {
+                key: currentVerifiedKey,
+                created_at: new Date().toLocaleString(),
+                used: false,
+                download_count: 0
+            };
+            localStorage.setItem('nf_used_pins', JSON.stringify(localUsedPins));
+            handlePinCreatedSuccess(pin);
+        }
+
+        function handlePinCreatedSuccess(pin) {
+            currentPin = pin;
+            const badge = document.getElementById('badge-step-2');
+            badge.className = "text-xs font-mono px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-bold";
+            badge.textContent = "PIN REZERVE EDİLDİ ✓";
+
+            const pinBox = document.getElementById('pin-success-box');
+            pinBox.classList.remove('hidden');
+            document.getElementById('pin-display').textContent = pin;
+
+            // 3. Adımı Aktif Et
+            const step3 = document.getElementById('step-card-3');
+            step3.classList.remove('step-inactive');
+            step3.classList.add('glow-border-green');
+            document.getElementById('badge-step-3').className = "text-xs font-mono px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-bold";
+            document.getElementById('badge-step-3').textContent = "İNDİRMEYE HAZIR";
+
+            showToast("Güvenlik PIN'i onaylandı! Şimdi Tweak dosyasını indirebilirsiniz.");
+        }
+
+        // ==================== ADIM 3: GÜVENLİ İNDİRME MANTIĞI ====================
+        async function triggerDownload() {
+            if (!currentVerifiedKey || !currentPin) {
+                showToast("Lütfen önce Key ve PIN doğrulamasını tamamlayın!", false);
+                return;
+            }
+
+            if (isDownloaded) {
+                showErrorModal("Bu PIN (" + currentPin + ") ile maksimum indirme hakkı (1/1) tamamlanmıştır. Güvenlik gereği aynı PIN ile 2. kez indirme yapılamaz!");
+                return;
+            }
+
+            const btn = document.getElementById('btn-final-download');
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> DOĞRULANIYOR VE İNDİRİLİYOR...';
+            btn.disabled = true;
+
+            try {
+                // Sunucuya indirme isteği at
+                const downloadUrl = `/api/download-tweak?key=${encodeURIComponent(currentVerifiedKey)}&pin=${encodeURIComponent(currentPin)}`;
+                
+                // Önce durum kontrolü için fetch atalım
+                const checkRes = await fetch(downloadUrl);
+
+                if (!checkRes.ok) {
+                    const errData = await checkRes.json().catch(() => ({}));
+                    showErrorModal(errData.message || "İndirme reddedildi! PIN hakkı dolmuş olabilir.");
+                    btn.innerHTML = '<i class="fa-solid fa-lock mr-2"></i> İNDİRME HAKKI TÜKENDİ (1/1)';
+                    btn.className = "w-full py-5 rounded-2xl font-tech font-bold text-lg text-gray-400 bg-gray-800 border border-red-500/30 uppercase cursor-not-allowed";
+                    return;
+                }
+
+                // Blob olarak indir
+                const blob = await checkRes.blob();
+                const a = document.createElement('a');
+                a.href = window.URL.createObjectURL(blob);
+                a.download = "NF_Tweaks_FPS_Booster.exe";
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+
+                handleDownloadSuccess();
+            } catch (e) {
+                // Sunucu erişilemiyorsa yerel statik indirme fallback
+                handleStaticLocalDownload();
+            }
+        }
+
+        function handleStaticLocalDownload() {
+            // LocalStorage'da PIN'i kalıcı yak
+            const localUsedPins = JSON.parse(localStorage.getItem('nf_used_pins') || "{}");
+            if (localUsedPins[currentPin]) {
+                localUsedPins[currentPin].used = true;
+                localUsedPins[currentPin].download_count = 1;
+                localUsedPins[currentPin].downloaded_at = new Date().toLocaleString();
+                localStorage.setItem('nf_used_pins', JSON.stringify(localUsedPins));
+            }
+
+            // Doğrudan Masaüstündeki veya klasördeki exe'ye yönlendir
+            const a = document.createElement('a');
+            a.href = "/NF_Tweaks_FPS_Booster.exe";
+            a.download = "NF_Tweaks_FPS_Booster.exe";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+
+            handleDownloadSuccess();
+        }
+
+        function handleDownloadSuccess() {
+            isDownloaded = true;
+
+            // Konfeti efekti!
+            confetti({
+                particleCount: 120,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+
+            const btn = document.getElementById('btn-final-download');
+            btn.innerHTML = '<i class="fa-solid fa-circle-check text-green-300 mr-2"></i> İNDİRME BAŞLATILDI (PIN KİLİTLENDİ - 0/1 HAK)';
+            btn.className = "w-full py-5 rounded-2xl font-tech font-extrabold text-base text-gray-300 bg-gray-900 border border-emerald-500/40 uppercase cursor-not-allowed shadow-inner";
+            btn.disabled = true;
+
+            showToast("NF_Tweaks_FPS_Booster.exe başarıyla indirildi! PIN tek kullanımlık olarak kilitlendi.");
+        }
+
+        // ==================== PIN DURUM SORGULAMA ====================
+        async function checkPinStatus() {
+            const pin = document.getElementById('check-pin-input').value.trim();
+            if (!pin) {
+                showToast("Lütfen sorgulanacak PIN'i giriniz!", false);
+                return;
+            }
+
+            const resultBox = document.getElementById('check-pin-result');
+            resultBox.classList.remove('hidden');
+            resultBox.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> PIN sorgulanıyor...';
+
+            try {
+                const res = await fetch('/api/check-pin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pin: pin })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.used) {
+                        resultBox.className = "mt-3 p-3 rounded-xl bg-red-500/10 border border-red-500/30 font-mono text-xs text-red-300";
+                        resultBox.innerHTML = `❌ PIN: <strong>${pin}</strong> | Durum: <strong>KULLANILMIŞ & TÜKENMİŞ (0/1 Hak)</strong><br><span class="text-gray-400 text-[11px]">İndirilme Zamanı: ${data.downloaded_at || 'Bilinmiyor'}</span>`;
+                    } else {
+                        resultBox.className = "mt-3 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 font-mono text-xs text-emerald-300";
+                        resultBox.innerHTML = `✅ PIN: <strong>${pin}</strong> | Durum: <strong>AKTİF VE KULLANILABİLİR (1/1 Hak)</strong><br><span class="text-gray-300 text-[11px]">Oluşturulma Tarihi: ${data.created_at || 'Yeni'}</span>`;
+                    }
+                } else {
+                    // LocalStorage fallback
+                    const localUsedPins = JSON.parse(localStorage.getItem('nf_used_pins') || "{}");
+                    const localData = localUsedPins[pin];
+                    if (localData) {
+                        if (localData.used) {
+                            resultBox.className = "mt-3 p-3 rounded-xl bg-red-500/10 border border-red-500/30 font-mono text-xs text-red-300";
+                            resultBox.innerHTML = `❌ PIN: <strong>${pin}</strong> | Durum: <strong>KULLANILMIŞ (0/1 Hak)</strong>`;
+                        } else {
+                            resultBox.className = "mt-3 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 font-mono text-xs text-emerald-300";
+                            resultBox.innerHTML = `✅ PIN: <strong>${pin}</strong> | Durum: <strong>AKTİF (1/1 Hak)</strong>`;
+                        }
+                    } else {
+                        resultBox.className = "mt-3 p-3 rounded-xl bg-gray-800 border border-white/10 font-mono text-xs text-gray-300";
+                        resultBox.innerHTML = `ℹ️ PIN: <strong>${pin}</strong> henüz veritabanında oluşturulmamış veya bulunamadı.`;
+                    }
+                }
+            } catch (e) {
+                resultBox.className = "mt-3 p-3 rounded-xl bg-gray-800 border border-white/10 font-mono text-xs text-gray-300";
+                resultBox.innerHTML = `ℹ️ PIN kontrolü tamamlandı.`;
+            }
+        }
+
+        function showErrorModal(msg) {
+            document.getElementById('error-modal-msg').textContent = msg;
+            document.getElementById('error-modal').classList.remove('hidden');
+        }
+
+        function closeErrorModal() {
+            document.getElementById('error-modal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

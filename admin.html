@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NF Tweaks - Sunucu Sahibi & Admin Onay Paneli</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Orbitron:wght@500;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        nfdark: '#07090e',
+                        nfcard: '#0c1017',
+                        nfaccent: '#00f3ff',
+                        nfviolet: '#9d4edd',
+                        nfpink: '#ff007f',
+                        nfgreen: '#00ff88',
+                        nfred: '#ef4444',
+                        nfyellow: '#f59e0b'
+                    },
+                    fontFamily: {
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                        tech: ['Orbitron', 'sans-serif'],
+                        sans: ['Rajdhani', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #07090e;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 243, 255, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(239, 68, 68, 0.06) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(157, 78, 221, 0.04) 0%, transparent 50%);
+            color: #f3f4f6;
+        }
+
+        .glass-panel {
+            background: rgba(12, 16, 23, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .scanline {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px;
+            z-index: 40;
+            pointer-events: none;
+            opacity: 0.25;
+        }
+
+        .glow-border-red {
+            box-shadow: 0 0 25px -5px rgba(239, 68, 68, 0.25);
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
+        .glow-border-green {
+            box-shadow: 0 0 25px -5px rgba(0, 255, 136, 0.25);
+            border-color: rgba(0, 255, 136, 0.4);
+        }
+
+        .glow-border-cyan {
+            box-shadow: 0 0 25px -5px rgba(0, 243, 255, 0.25);
+            border-color: rgba(0, 243, 255, 0.4);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans selection:bg-nfaccent selection:text-nfdark">
+    <div class="scanline"></div>
+
+    <!-- ==================== ÜST MENÜ (NAVBAR) ==================== -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <img src="assets/nf_logo.png" alt="NF Logo" class="h-12 w-auto object-contain drop-shadow-[0_0_15px_rgba(239,68,68,0.6)]">
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-tech text-2xl font-extrabold tracking-wider text-white">NF<span class="text-red-500">ADMIN</span></span>
+                        <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/40">OWNER CONSOLE</span>
+                    </div>
+                    <span class="text-[10px] text-gray-400 font-mono tracking-widest block uppercase">Sunucu Sahibi & Lisans Onay Masası</span>
+                </div>
+            </div>
+
+            <!-- Sağ Menü -->
+            <div class="flex items-center space-x-3">
+                <a href="index.html" class="hidden sm:flex items-center space-x-1.5 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white text-xs font-mono transition border border-white/10">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Siteye Dön</span>
+                </a>
+
+                <div id="nav-user-badge" class="hidden items-center space-x-2 px-3 py-1.5 rounded-xl bg-red-600/10 border border-red-500/30 text-xs font-mono">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span id="nav-user-name" class="text-white font-bold">ogdovmesi (Owner)</span>
+                </div>
+
+                <button onclick="openChangePasswordModal()" id="btn-change-pwd-nav" class="hidden px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-yellow-500/20 text-yellow-400 text-xs font-mono transition border border-yellow-500/30 flex items-center space-x-1.5">
+                    <i class="fa-solid fa-key"></i>
+                    <span>Şifre Değiştir</span>
+                </button>
+
+                <button onclick="handleLogout()" id="btn-logout" class="hidden px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 text-xs font-mono transition border border-white/10">
+                    <i class="fa-solid fa-right-from-bracket mr-1"></i> Çıkış
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== GİRİŞ EKRANI (OTURUM YOKSA) ==================== -->
+    <div id="login-container" class="flex-1 flex items-center justify-center p-4 py-16">
+        <div class="glass-panel max-w-md w-full rounded-3xl p-8 border border-white/15 relative shadow-2xl">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-600 to-amber-500 text-black flex items-center justify-center text-3xl font-bold mx-auto mb-4 shadow-xl shadow-red-600/25">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h2 class="text-2xl font-tech font-extrabold text-white uppercase tracking-wider">HESAP GİRİŞİ</h2>
+                <p class="text-gray-400 text-xs font-mono mt-1">Yönetim paneline erişmek için kullanıcı adı ve şifrenizle giriş yapınız.</p>
+            </div>
+
+            <form onsubmit="doAdminLogin(event)" class="space-y-4 font-mono text-xs">
+                <div>
+                    <label class="block text-gray-300 uppercase mb-1.5 font-bold">Kullanıcı Adı</label>
+                    <input id="admin-uname" type="text" required placeholder="kullanıcı adınız" class="w-full bg-black/60 border border-white/15 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-gray-300 uppercase mb-1.5 font-bold">Şifre</label>
+                    <input id="admin-pwd" type="password" required placeholder="••••••••" class="w-full bg-black/60 border border-white/15 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none">
+                </div>
+
+                <button type="submit" class="w-full py-4 rounded-xl font-tech font-extrabold text-sm text-white bg-gradient-to-r from-red-600 to-amber-600 hover:brightness-110 transition uppercase shadow-xl shadow-red-600/30 tracking-wider">
+                    GİRİŞ YAP
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== ANA YÖNETİM PANELİ (OTURUM VARSA) ==================== -->
+    <main id="dashboard-container" class="hidden flex-1 py-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <!-- Üst Başlık & Hızlı İstatistik Kartları -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs font-mono text-red-400 px-3 py-1 rounded-full bg-red-600/10 border border-red-500/30 uppercase font-bold">
+                            👑 OWNER PANELİ
+                        </span>
+                        <span id="auto-refresh-indicator" class="text-xs font-mono text-gray-400 flex items-center space-x-1">
+                            <i class="fa-solid fa-arrows-rotate text-emerald-400 animate-spin"></i>
+                            <span>Canlı Senkronize</span>
+                        </span>
+                    </div>
+                    <h1 class="text-3xl sm:text-4xl font-tech font-extrabold text-white uppercase mt-2">
+                        SİPARİŞ ONAY VE KULLANICI KONSOLU
+                    </h1>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3">
+                    <button onclick="openChangePasswordModal()" class="px-4 py-2.5 rounded-xl bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/30 text-yellow-400 font-mono text-xs flex items-center space-x-2 transition">
+                        <i class="fa-solid fa-key"></i>
+                        <span>Şifre Değiştir</span>
+                    </button>
+                    <button onclick="loadAllData()" class="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white font-mono text-xs flex items-center space-x-2 transition">
+                        <i class="fa-solid fa-rotate"></i>
+                        <span>Yenile</span>
+                    </button>
+                    <button onclick="openCreateKeyModal()" class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-nfdark font-tech font-bold text-xs uppercase flex items-center space-x-2 transition shadow-lg shadow-emerald-500/20">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Manuel Lisans Üret</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 4 ADET KPI ÖZET KARTI (CANLI GERÇEK VERİLER) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <!-- 1. Bekleyen Siparişler -->
+                <div class="glass-panel rounded-3xl p-6 border border-yellow-500/30 relative overflow-hidden">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-mono text-yellow-400 uppercase font-bold">Bekleyen Siparişler</span>
+                        <div class="w-10 h-10 rounded-xl bg-yellow-500/10 text-yellow-400 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-baseline space-x-2">
+                        <span id="stat-pending" class="text-4xl font-tech font-extrabold text-yellow-400">0</span>
+                        <span class="text-xs font-mono text-gray-400">adet onay bekliyor</span>
+                    </div>
+                </div>
+
+                <!-- 2. Toplam Onaylanan Ciro -->
+                <div class="glass-panel rounded-3xl p-6 border border-emerald-500/30 relative overflow-hidden">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-mono text-emerald-400 uppercase font-bold">Toplam Ciro (Onaylı)</span>
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-turkish-lira-sign"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-baseline space-x-2">
+                        <span id="stat-revenue" class="text-4xl font-tech font-extrabold text-emerald-400">₺0</span>
+                        <span class="text-xs font-mono text-gray-400">teslim edilen</span>
+                    </div>
+                </div>
+
+                <!-- 3. Toplam Kayıtlı Anahtarlar -->
+                <div class="glass-panel rounded-3xl p-6 border border-nfaccent/30 relative overflow-hidden">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-mono text-nfaccent uppercase font-bold">Aktif Tweak Lisansı</span>
+                        <div class="w-10 h-10 rounded-xl bg-nfaccent/10 text-nfaccent flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-key"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-baseline space-x-2">
+                        <span id="stat-keys" class="text-4xl font-tech font-extrabold text-white">0</span>
+                        <span class="text-xs font-mono text-gray-400">uygulama anahtarı</span>
+                    </div>
+                </div>
+
+                <!-- 4. Kayıtlı Hesap Sayısı -->
+                <div class="glass-panel rounded-3xl p-6 border border-purple-500/30 relative overflow-hidden">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-mono text-purple-400 uppercase font-bold">Kayıtlı Kullanıcı</span>
+                        <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-baseline space-x-2">
+                        <span id="stat-users" class="text-4xl font-tech font-extrabold text-white">0</span>
+                        <span class="text-xs font-mono text-gray-400">üye hesabı</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== SEKME MENÜSÜ ==================== -->
+            <div class="flex flex-wrap items-center gap-2 mb-6 border-b border-white/10 pb-4 font-tech text-xs uppercase tracking-wider">
+                <button onclick="switchTab('orders')" id="tab-orders" class="px-6 py-3 rounded-xl font-bold bg-red-600/20 text-red-400 border border-red-500/40 transition flex items-center space-x-2">
+                    <i class="fa-solid fa-receipt"></i>
+                    <span>SİPARİŞ ONAY MASASI (<span id="tab-pending-badge">0</span>)</span>
+                </button>
+                <button onclick="switchTab('payment')" id="tab-payment" class="px-6 py-3 rounded-xl font-bold text-gray-400 hover:text-white hover:bg-white/5 transition flex items-center space-x-2">
+                    <i class="fa-solid fa-building-columns text-nfaccent"></i>
+                    <span>ÖDEME & HESAP AYARLARI</span>
+                </button>
+                <button onclick="switchTab('users')" id="tab-users" class="px-6 py-3 rounded-xl font-bold text-gray-400 hover:text-white hover:bg-white/5 transition flex items-center space-x-2">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span>KULLANICI & YETKİLER</span>
+                </button>
+                <button onclick="switchTab('pins')" id="tab-pins" class="px-6 py-3 rounded-xl font-bold text-gray-400 hover:text-white hover:bg-white/5 transition flex items-center space-x-2">
+                    <i class="fa-solid fa-lock"></i>
+                    <span>PIN HAVUZU</span>
+                </button>
+            </div>
+
+            <!-- ==================== SEKME 1: SİPARİŞ ONAY MASASI ==================== -->
+            <div id="section-orders" class="space-y-6">
+                <!-- Filtreler -->
+                <div class="flex flex-wrap items-center justify-between gap-4 font-mono text-xs">
+                    <div class="flex items-center space-x-2">
+                        <button onclick="filterOrders('all')" id="btn-filter-all" class="px-3.5 py-1.5 rounded-lg bg-white/20 text-white font-bold">Tümü</button>
+                        <button onclick="filterOrders('pending_approval')" id="btn-filter-pending" class="px-3.5 py-1.5 rounded-lg bg-white/5 text-gray-400 hover:text-white">⏳ Bekleyenler</button>
+                        <button onclick="filterOrders('approved')" id="btn-filter-approved" class="px-3.5 py-1.5 rounded-lg bg-white/5 text-gray-400 hover:text-white">✅ Onaylananlar</button>
+                        <button onclick="filterOrders('rejected')" id="btn-filter-rejected" class="px-3.5 py-1.5 rounded-lg bg-white/5 text-gray-400 hover:text-white">❌ Reddedilenler</button>
+                    </div>
+
+                    <div class="text-gray-400 text-xs">
+                        Toplam <strong id="filter-count" class="text-white">0</strong> sipariş listelendi
+                    </div>
+                </div>
+
+                <!-- Sipariş Tablosu -->
+                <div class="glass-panel rounded-3xl border border-white/10 overflow-hidden shadow-2xl">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left font-mono text-xs">
+                            <thead class="bg-black/60 border-b border-white/10 text-gray-400 uppercase text-[11px]">
+                                <tr>
+                                    <th class="py-4 px-6">Sipariş ID</th>
+                                    <th class="py-4 px-6">Müşteri & Discord</th>
+                                    <th class="py-4 px-6">Paket & Fiyat</th>
+                                    <th class="py-4 px-6">Üretilen Lisans Kodu</th>
+                                    <th class="py-4 px-6">Ödeme & Not</th>
+                                    <th class="py-4 px-6">Tarih</th>
+                                    <th class="py-4 px-6">Durum</th>
+                                    <th class="py-4 px-6 text-right">Owner Onayı</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table-body" class="divide-y divide-white/5">
+                                <tr>
+                                    <td colspan="8" class="text-center py-12 text-gray-500">
+                                        Henüz bekleyen veya tamamlanan sipariş bulunmuyor. Müşteriler satın alma yaptığında burada anlık olarak görünecektir.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== SEKME 2: ÖDEME & HESAP AYARLARI ==================== -->
+            <div id="section-payment" class="hidden space-y-6">
+                <div class="glass-panel rounded-3xl p-8 border border-white/10 max-w-3xl mx-auto shadow-2xl space-y-6 font-mono text-xs">
+                    <div class="border-b border-white/10 pb-4">
+                        <div class="flex items-center space-x-2 text-nfaccent text-xs font-bold uppercase mb-1">
+                            <i class="fa-brands fa-discord"></i>
+                            <span>DİSCORD SİPARİŞ & DESTEK KANAL AYARLARI</span>
+                        </div>
+                        <h3 class="text-2xl font-tech font-bold text-white uppercase">DİSCORD DAVET & SİPARİŞ YÖNERGESİ</h3>
+                        <p class="text-gray-400 text-xs mt-1">Sitede ve fiyatlandırma modallarında müşterilere sunulacak resmi Discord linki ve ticket talimatlarını buradan yönetebilirsiniz. (Web üzerinden kart/hesap ile ödeme kapatılmıştır; tüm siparişler Discord ticket ile alınmaktadır.)</p>
+                    </div>
+
+                    <form onsubmit="handleSavePaymentSettings(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-gray-300 uppercase mb-1.5 font-bold">Discord Davet / Destek Linki</label>
+                            <input id="set-discord-invite" type="text" placeholder="discord.gg/kZDX8cfTp" class="w-full bg-black/60 border border-white/15 rounded-xl px-4 py-3 text-white focus:border-nfaccent outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-gray-300 uppercase mb-1.5 font-bold">Müşteriye Gösterilecek Özel Açıklama / Ticket Notu</label>
+                            <textarea id="set-note" rows="3" placeholder="Örn: Ödemeler yalnızca resmi Discord sunucumuzda ticket üzerinden Sunucu Sahibi (ogdovmesi) ile teyit edilerek alınır." class="w-full bg-black/60 border border-white/15 rounded-xl px-4 py-3 text-white focus:border-nfaccent outline-none"></textarea>
+                        </div>
+
+                        <button type="submit" class="w-full py-4 rounded-xl font-tech font-extrabold text-sm text-nfdark bg-nfaccent hover:contrast-125 transition uppercase shadow-xl shadow-nfaccent/20">
+                            <i class="fa-solid fa-floppy-disk mr-1.5"></i> DİSCORD AYARLARINI GÜNCELLE VE KAYDET
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ==================== SEKME 3: KULLANICI & YETKİLER ==================== -->
+            <div id="section-users" class="hidden space-y-6">
+                <div class="bg-red-600/10 border border-red-500/30 rounded-2xl p-4 text-xs font-mono text-red-300 flex items-center space-x-3">
+                    <i class="fa-solid fa-circle-exclamation text-lg text-red-400 shrink-0"></i>
+                    <span>
+                        <strong>OWNER YETKİ KURALI:</strong> Yalnızca Sunucu Sahibi (ogdovmesi) başka kullanıcılara Admin yetkisi atayabilir veya yetkilerini geri alabilir.
+                    </span>
+                </div>
+
+                <div class="glass-panel rounded-3xl border border-white/10 overflow-hidden shadow-2xl">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left font-mono text-xs">
+                            <thead class="bg-black/60 border-b border-white/10 text-gray-400 uppercase text-[11px]">
+                                <tr>
+                                    <th class="py-4 px-6">Kullanıcı Adı</th>
+                                    <th class="py-4 px-6">Discord Etiketi</th>
+                                    <th class="py-4 px-6">Kayıt Tarihi</th>
+                                    <th class="py-4 px-6">Sipariş Sayısı</th>
+                                    <th class="py-4 px-6">Mevcut Rol</th>
+                                    <th class="py-4 px-6 text-right">Yetki Yönetimi (Owner)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body" class="divide-y divide-white/5">
+                                <tr>
+                                    <td colspan="6" class="text-center py-12 text-gray-500">
+                                        Kullanıcılar yükleniyor...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== SEKME 4: PIN HAVUZU ==================== -->
+            <div id="section-pins" class="hidden space-y-6">
+                <div class="bg-nfaccent/10 border border-nfaccent/30 rounded-2xl p-4 text-xs font-mono text-cyan-300 flex items-center space-x-3">
+                    <i class="fa-solid fa-shield-halved text-lg text-nfaccent shrink-0"></i>
+                    <span>
+                        <strong>1-TIME PIN KURALI:</strong> Kullanıcıların ürettiği Güvenlik PIN'leri burada listelenir. 1 indirme tamamlandığı anda PIN yanar ve veritabanında kullanıldı olarak işaretlenir.
+                    </span>
+                </div>
+
+                <div id="pins-summary-container" class="glass-panel rounded-3xl p-6 border border-white/10 font-mono text-xs">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-base font-tech font-bold text-white uppercase">GÜVENLİK PIN DURUMLARI</h4>
+                        <span id="pins-count-badge" class="px-2.5 py-1 rounded bg-white/10 text-gray-300 text-xs">0 PIN</span>
+                    </div>
+                    <div id="pins-list" class="space-y-3">
+                        <div class="text-center py-8 text-gray-500">Henüz üretilmiş bir PIN bulunmuyor.</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ==================== ŞİFRE DEĞİŞTİRME MODALI ==================== -->
+    <div id="change-pwd-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-md w-full rounded-3xl p-6 sm:p-8 border border-white/20 relative shadow-2xl">
+            <button onclick="closeChangePasswordModal()" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="w-11 h-11 rounded-xl bg-yellow-500/20 text-yellow-400 flex items-center justify-center text-xl font-bold">
+                    <i class="fa-solid fa-key"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-tech font-bold text-white uppercase">ŞİFRE DEĞİŞTİR</h3>
+                    <p class="text-gray-400 text-xs font-mono">Hesap şifrenizi istediğiniz zaman buradan güncelleyebilirsiniz.</p>
+                </div>
+            </div>
+
+            <form onsubmit="handleChangePassword(event)" class="space-y-4 font-mono text-xs mt-4">
+                <div>
+                    <label class="block text-gray-300 uppercase mb-1.5 font-bold">Mevcut Şifreniz</label>
+                    <input id="pwd-old" type="password" required placeholder="Mevcut şifreniz" class="w-full bg-black/60 border border-white/15 rounded-xl px-4 py-3 text-white focus:border-yellow-400 outline-none">
+                </div>
+                <div>
+                    <label class="block text-gray-300 uppercase mb-1.5 font-bold">Yeni Şifre</label>
+                    <input id="pwd-new" type="password" required placeholder="En az 4 karakter" class="w-full bg-black/60 border border-white/15 rounded-xl px-4 py-3 text-white focus:border-yellow-400 outline-none">
+                </div>
+                <div>
+                    <label class="block text-gray-300 uppercase mb-1.5 font-bold">Yeni Şifre (Tekrar)</label>
+                    <input id="pwd-new-repeat" type="password" required placeholder="Yeni şifrenizi doğrulayın" class="w-full bg-black/60 border border-white/15 rounded-xl px-4 py-3 text-white focus:border-yellow-400 outline-none">
+                </div>
+                <button type="submit" class="w-full py-3.5 rounded-xl font-tech font-extrabold text-sm text-nfdark bg-yellow-400 hover:bg-yellow-300 transition uppercase shadow-lg shadow-yellow-500/20 mt-2">
+                    <i class="fa-solid fa-check mr-1.5"></i> ŞİFREYİ GÜNCELLE VE KAYDET
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== MANUEL KOD ÜRETİM MODALI ==================== -->
+    <div id="create-key-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-md w-full rounded-3xl p-6 sm:p-8 border border-white/20 relative shadow-2xl">
+            <button onclick="closeCreateKeyModal()" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <h3 class="text-2xl font-tech font-bold text-white uppercase mb-2">MANUEL LİSANS ÜRET</h3>
+            <p class="text-gray-400 text-xs font-mono mb-6">Özel müşteriler veya elden ödemeler için anında onaylı kod üretir.</p>
+
+            <form onsubmit="handleManualCreateKey(event)" class="space-y-4 font-mono text-xs">
+                <div>
+                    <label class="block text-gray-300 mb-1.5 uppercase font-bold">Lisans Paketi</label>
+                    <select id="gen-plan" class="w-full bg-black/60 border border-white/15 rounded-xl px-4 py-3 text-white focus:border-nfaccent outline-none">
+                        <option value="lifetime">Sınırsız Lifetime VIP (Sonsuz)</option>
+                        <option value="1month">1 Aylık Pro Lisans (30 Gün)</option>
+                        <option value="1week">1 Haftalık Espor Lisansı (7 Gün)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-gray-300 mb-1.5 uppercase font-bold">Müşteri / Açıklama Notu</label>
+                    <input id="gen-note" type="text" placeholder="Örn: Discord Ticket #58 Elit Müşteri" class="w-full bg-black/60 border border-white/15 rounded-xl px-4 py-3 text-white focus:border-nfaccent outline-none">
+                </div>
+                <button type="submit" class="w-full py-4 rounded-xl font-tech font-extrabold text-sm text-nfdark bg-emerald-400 hover:bg-emerald-300 transition uppercase shadow-lg shadow-emerald-500/20">
+                    <i class="fa-solid fa-bolt mr-1"></i> KODU OLUŞTUR VE ONAYLA
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bildirim Toast'u -->
+    <div id="toast" class="fixed bottom-6 right-6 px-5 py-3 rounded-xl bg-black/95 border border-red-500 text-white text-xs font-mono shadow-2xl opacity-0 pointer-events-none transition-all duration-300 z-50 flex items-center space-x-2">
+        <i class="fa-solid fa-circle-check text-nfgreen text-sm"></i>
+        <span id="toast-msg">İşlem başarılı!</span>
+    </div>
+
+    <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+    <script>
+        let allOrders = [];
+        let allUsers = [];
+        let currentFilter = 'all';
+        let currentAuthUser = null;
+        let pollInterval = null;
+
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            toastMsg.textContent = msg;
+            toast.className = `fixed bottom-6 right-6 px-5 py-3 rounded-xl bg-black/95 border ${isError ? 'border-red-500 text-red-300' : 'border-emerald-500 text-white'} text-xs font-mono shadow-2xl transition-all duration-300 z-50 flex items-center space-x-2`;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        function getToken() {
+            return localStorage.getItem('nf_admin_token') || localStorage.getItem('nf_token');
+        }
+
+        async function initAuth() {
+            const token = getToken();
+            if (!token) {
+                showLoginView();
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/auth/me', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.user && (data.user.role === 'owner' || data.user.role === 'admin')) {
+                        currentAuthUser = data.user;
+                        showDashboardView();
+                        loadAllData();
+                        loadPaymentSettingsAdmin();
+                        startLiveSync();
+                    } else {
+                        showToast('Yetkisiz erişim! Yalnızca Sunucu Sahibi (ogdovmesi) ve yöneticiler görebilir.', true);
+                        showLoginView();
+                    }
+                } else {
+                    showLoginView();
+                }
+            } catch (e) {
+                showLoginView();
+            }
+        }
+
+        function showLoginView() {
+            document.getElementById('login-container').classList.remove('hidden');
+            document.getElementById('dashboard-container').classList.add('hidden');
+            document.getElementById('nav-user-badge').classList.add('hidden');
+            document.getElementById('btn-change-pwd-nav').classList.add('hidden');
+            document.getElementById('btn-logout').classList.add('hidden');
+            if (pollInterval) clearInterval(pollInterval);
+        }
+
+        function showDashboardView() {
+            document.getElementById('login-container').classList.add('hidden');
+            document.getElementById('dashboard-container').classList.remove('hidden');
+            document.getElementById('nav-user-badge').classList.remove('hidden');
+            document.getElementById('btn-change-pwd-nav').classList.remove('hidden');
+            document.getElementById('btn-logout').classList.remove('hidden');
+
+            const isOwner = currentAuthUser.role === 'owner';
+            document.getElementById('nav-user-name').textContent = `${currentAuthUser.username} (${isOwner ? '👑 Owner' : '🛡️ Admin'})`;
+        }
+
+        async function doAdminLogin(e) {
+            e.preventDefault();
+            const uname = document.getElementById('admin-uname').value.trim();
+            const pwd = document.getElementById('admin-pwd').value.trim();
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: uname, password: pwd })
+                });
+                const data = await res.json();
+                if (res.ok && data.status === 'success') {
+                    if (data.user.role !== 'owner' && data.user.role !== 'admin') {
+                        showToast('Bu hesap yetkili değildir. Yönetim paneli yalnızca yöneticilere açıktır.', true);
+                        return;
+                    }
+                    localStorage.setItem('nf_admin_token', data.token);
+                    localStorage.setItem('nf_token', data.token);
+                    currentAuthUser = data.user;
+                    showToast(`Giriş başarılı! Hoş geldiniz ${data.user.username}`);
+                    showDashboardView();
+                    loadAllData();
+                    loadPaymentSettingsAdmin();
+                    startLiveSync();
+                } else {
+                    showToast(data.message || 'Kullanıcı adı veya şifre yanlış!', true);
+                }
+            } catch (err) {
+                showToast('Sunucuya bağlanılamadı!', true);
+            }
+        }
+
+        async function handleLogout() {
+            const token = getToken();
+            if (token) {
+                try {
+                    await fetch('/api/auth/logout', {
+                        method: 'POST',
+                        headers: { 'Authorization': 'Bearer ' + token }
+                    });
+                } catch(e) {}
+            }
+            localStorage.removeItem('nf_admin_token');
+            localStorage.removeItem('nf_token');
+            currentAuthUser = null;
+            showLoginView();
+            showToast('Çıkış yapıldı.');
+        }
+
+        function startLiveSync() {
+            if (pollInterval) clearInterval(pollInterval);
+            pollInterval = setInterval(() => {
+                loadAllData(false);
+            }, 4000);
+        }
+
+        async function loadAllData(showSpinner = true) {
+            const token = getToken();
+            if (!token) return;
+
+            try {
+                // 1. Stats
+                const statsRes = await fetch('/api/admin/stats', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                if (statsRes.ok) {
+                    const st = (await statsRes.json()).stats;
+                    document.getElementById('stat-pending').textContent = st.pending_orders;
+                    document.getElementById('tab-pending-badge').textContent = st.pending_orders;
+                    document.getElementById('stat-revenue').textContent = '₺' + st.total_revenue.toLocaleString('tr-TR');
+                    document.getElementById('stat-keys').textContent = st.total_keys;
+                    document.getElementById('stat-users').textContent = st.total_users;
+                }
+
+                // 2. Orders
+                const ordersRes = await fetch('/api/admin/orders', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                if (ordersRes.ok) {
+                    allOrders = (await ordersRes.json()).orders || [];
+                    renderOrders();
+                }
+
+                // 3. Users
+                const usersRes = await fetch('/api/admin/users', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                if (usersRes.ok) {
+                    allUsers = (await usersRes.json()).users || [];
+                    renderUsers();
+                }
+
+                // 4. Pins Status
+                loadPinsStatus();
+
+            } catch (e) {
+                console.error("Data load error:", e);
+            }
+        }
+
+        function switchTab(tab) {
+            const btnOrders = document.getElementById('tab-orders');
+            const btnPayment = document.getElementById('tab-payment');
+            const btnUsers = document.getElementById('tab-users');
+            const btnPins = document.getElementById('tab-pins');
+            
+            const secOrders = document.getElementById('section-orders');
+            const secPayment = document.getElementById('section-payment');
+            const secUsers = document.getElementById('section-users');
+            const secPins = document.getElementById('section-pins');
+
+            [btnOrders, btnPayment, btnUsers, btnPins].forEach(b => {
+                if (b) b.className = 'px-6 py-3 rounded-xl font-bold text-gray-400 hover:text-white hover:bg-white/5 transition flex items-center space-x-2';
+            });
+            [secOrders, secPayment, secUsers, secPins].forEach(s => {
+                if (s) s.classList.add('hidden');
+            });
+
+            if (tab === 'orders') {
+                btnOrders.className = 'px-6 py-3 rounded-xl font-bold bg-red-600/20 text-red-400 border border-red-500/40 transition flex items-center space-x-2';
+                secOrders.classList.remove('hidden');
+            } else if (tab === 'payment') {
+                btnPayment.className = 'px-6 py-3 rounded-xl font-bold bg-nfaccent/20 text-nfaccent border border-nfaccent/40 transition flex items-center space-x-2';
+                secPayment.classList.remove('hidden');
+                loadPaymentSettingsAdmin();
+            } else if (tab === 'users') {
+                btnUsers.className = 'px-6 py-3 rounded-xl font-bold bg-purple-600/20 text-purple-400 border border-purple-500/40 transition flex items-center space-x-2';
+                secUsers.classList.remove('hidden');
+            } else if (tab === 'pins') {
+                btnPins.className = 'px-6 py-3 rounded-xl font-bold bg-white/20 text-white border border-white/30 transition flex items-center space-x-2';
+                secPins.classList.remove('hidden');
+            }
+        }
+
+        function filterOrders(filter) {
+            currentFilter = filter;
+            ['all', 'pending', 'approved', 'rejected'].forEach(f => {
+                const el = document.getElementById('btn-filter-' + f);
+                if (el) el.className = 'px-3.5 py-1.5 rounded-lg bg-white/5 text-gray-400 hover:text-white';
+            });
+            const activeMap = {
+                'all': 'btn-filter-all',
+                'pending_approval': 'btn-filter-pending',
+                'approved': 'btn-filter-approved',
+                'rejected': 'btn-filter-rejected'
+            };
+            const btn = document.getElementById(activeMap[filter]);
+            if (btn) btn.className = 'px-3.5 py-1.5 rounded-lg bg-white/20 text-white font-bold';
+            renderOrders();
+        }
+
+        function renderOrders() {
+            const tbody = document.getElementById('orders-table-body');
+            let list = allOrders;
+            if (currentFilter !== 'all') {
+                list = list.filter(o => o.status === currentFilter);
+            }
+            document.getElementById('filter-count').textContent = list.length;
+
+            if (list.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center py-12 text-gray-500">
+                            Henüz bekleyen veya tamamlanan sipariş bulunmuyor. Müşteriler satın alma yaptığında burada anlık olarak görünecektir.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = list.map(o => {
+                const isPending = o.status === 'pending_approval';
+                const isApproved = o.status === 'approved';
+
+                let badge = '';
+                if (isPending) {
+                    badge = '<span class="px-2.5 py-1 rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 text-[10px] font-bold">⏳ ONAY BEKLİYOR</span>';
+                } else if (isApproved) {
+                    badge = `<span class="px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold">✅ ONAYLANDI (${o.approved_by || 'Owner'})</span>`;
+                } else {
+                    badge = '<span class="px-2.5 py-1 rounded bg-red-500/20 text-red-400 border border-red-500/30 text-[10px] font-bold">❌ REDDEDİLDİ</span>';
+                }
+
+                return `
+                    <tr class="hover:bg-white/5 transition">
+                        <td class="py-4 px-6 font-bold text-white">${o.id}</td>
+                        <td class="py-4 px-6">
+                            <div class="text-white font-bold">${o.username}</div>
+                            <div class="text-[10px] text-gray-400">${o.discord_tag || '-'}</div>
+                        </td>
+                        <td class="py-4 px-6">
+                            <div class="text-white font-bold">${o.plan_label}</div>
+                            <div class="text-[11px] text-nfaccent font-bold">₺${o.price}</div>
+                        </td>
+                        <td class="py-4 px-6">
+                            <div class="flex items-center space-x-2">
+                                <code class="text-white font-bold text-xs bg-black/60 px-2.5 py-1 rounded border border-white/10">${o.key}</code>
+                                <button onclick="navigator.clipboard.writeText('${o.key}'); showToast('Kod kopyalandı!');" class="text-gray-400 hover:text-white transition" title="Kopyala">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6">
+                            <div class="text-gray-300 text-[11px]">${o.payment_method || 'Banka / Havale'}</div>
+                            <div class="text-[10px] text-gray-400 truncate max-w-[150px]">${o.note || '-'}</div>
+                        </td>
+                        <td class="py-4 px-6 text-gray-400 text-[11px] whitespace-nowrap">${o.created_at}</td>
+                        <td class="py-4 px-6 whitespace-nowrap">${badge}</td>
+                        <td class="py-4 px-6 text-right whitespace-nowrap">
+                            ${isPending ? `
+                                <div class="flex items-center justify-end space-x-2">
+                                    <button onclick="approveOrder('${o.id}')" class="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-nfdark font-bold transition text-xs shadow-md shadow-emerald-500/20 flex items-center space-x-1">
+                                        <i class="fa-solid fa-check"></i>
+                                        <span>ONAYLA</span>
+                                    </button>
+                                    <button onclick="rejectOrder('${o.id}')" class="px-3 py-1.5 rounded-lg bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white transition text-xs border border-red-500/40">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+                            ` : `
+                                <span class="text-gray-500 text-[11px]">İşlem Tamamlandı</span>
+                            `}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function approveOrder(orderId) {
+            const token = getToken();
+            try {
+                const res = await fetch('/api/admin/orders/approve', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ order_id: orderId })
+                });
+                const data = await res.json();
+                if (res.ok && data.status === 'success') {
+                    showToast(`Sipariş ${orderId} onaylandı! Lisans kodu müşteriye teslim edildi.`);
+                    loadAllData();
+                } else {
+                    showToast(data.message || 'Onaylama başarısız!', true);
+                }
+            } catch (err) {
+                showToast('Sunucu bağlantı hatası!', true);
+            }
+        }
+
+        async function rejectOrder(orderId) {
+            if (!confirm(`Sipariş ${orderId} iptal edilsin mi?`)) return;
+            const token = getToken();
+            try {
+                const res = await fetch('/api/admin/orders/reject', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ order_id: orderId })
+                });
+                const data = await res.json();
+                if (res.ok && data.status === 'success') {
+                    showToast(`Sipariş ${orderId} reddedildi.`);
+                    loadAllData();
+                } else {
+                    showToast(data.message || 'Reddetme başarısız!', true);
+                }
+            } catch (err) {
+                showToast('Hata!', true);
+            }
+        }
+
+        function renderUsers() {
+            const tbody = document.getElementById('users-table-body');
+            const isOwner = currentAuthUser && currentAuthUser.role === 'owner';
+
+            tbody.innerHTML = allUsers.map(u => {
+                const isUserOwner = u.role === 'owner';
+                const isAdmin = u.role === 'admin';
+
+                let roleBadge = '';
+                if (isUserOwner) {
+                    roleBadge = '<span class="px-2.5 py-0.5 rounded-full bg-red-600/30 text-red-400 border border-red-500/40 font-bold text-[10px]">👑 OWNER (SAHİP)</span>';
+                } else if (isAdmin) {
+                    roleBadge = '<span class="px-2.5 py-0.5 rounded-full bg-purple-600/30 text-purple-400 border border-purple-500/40 font-bold text-[10px]">🛡️ ADMİN</span>';
+                } else {
+                    roleBadge = '<span class="px-2.5 py-0.5 rounded-full bg-white/10 text-gray-300 border border-white/10 text-[10px]">👤 MÜŞTERİ</span>';
+                }
+
+                let actionBtn = '';
+                if (isUserOwner) {
+                    actionBtn = '<span class="text-gray-500 text-[11px] font-mono">Dokunulamaz</span>';
+                } else if (isOwner) {
+                    if (isAdmin) {
+                        actionBtn = `
+                            <button onclick="setUserRole('${u.username}', 'customer')" class="px-3 py-1.5 rounded-lg bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white transition text-xs border border-red-500/30">
+                                Yetkiyi Al (Müşteri Yap)
+                            </button>
+                        `;
+                    } else {
+                        actionBtn = `
+                            <button onclick="setUserRole('${u.username}', 'admin')" class="px-3 py-1.5 rounded-lg bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white transition text-xs border border-purple-500/30">
+                                Yetki Ver: Admin Yap
+                            </button>
+                        `;
+                    }
+                } else {
+                    actionBtn = '<span class="text-gray-500 text-[11px]">Sadece Owner</span>';
+                }
+
+                return `
+                    <tr class="hover:bg-white/5 transition">
+                        <td class="py-4 px-6 font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-circle-user text-gray-400"></i>
+                            <span>${u.username}</span>
+                        </td>
+                        <td class="py-4 px-6 text-gray-400">${u.discord_tag || '-'}</td>
+                        <td class="py-4 px-6 text-gray-400 text-[11px]">${u.created_at || '-'}</td>
+                        <td class="py-4 px-6 text-white font-bold">${u.orders_count || 0}</td>
+                        <td class="py-4 px-6">${roleBadge}</td>
+                        <td class="py-4 px-6 text-right">${actionBtn}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function setUserRole(targetUsername, newRole) {
+            const token = getToken();
+            try {
+                const res = await fetch('/api/admin/users/set-role', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ username: targetUsername, role: newRole })
+                });
+                const data = await res.json();
+                if (res.ok && data.status === 'success') {
+                    showToast(data.message);
+                    loadAllData();
+                } else {
+                    showToast(data.message || 'Yetki güncellenemedi!', true);
+                }
+            } catch (e) {
+                showToast('Hata!', true);
+            }
+        }
+
+        // PAYMENT SETTINGS LOGIC
+        async function loadPaymentSettingsAdmin() {
+            try {
+                const res = await fetch('/api/payment-settings');
+                if (res.ok) {
+                    const data = await res.json();
+                    const s = data.settings || {};
+                    const inviteEl = document.getElementById('set-discord-invite');
+                    const noteEl = document.getElementById('set-note');
+                    if (inviteEl) inviteEl.value = s.discord_invite || 'discord.gg/kZDX8cfTp';
+                    if (noteEl) noteEl.value = s.note || '';
+                }
+            } catch (e) {}
+        }
+
+        async function handleSavePaymentSettings(e) {
+            e.preventDefault();
+            const token = getToken();
+            const inviteEl = document.getElementById('set-discord-invite');
+            const noteEl = document.getElementById('set-note');
+            const payload = {
+                discord_invite: inviteEl ? inviteEl.value.trim() : 'discord.gg/kZDX8cfTp',
+                note: noteEl ? noteEl.value.trim() : ''
+            };
+
+            try {
+                const res = await fetch('/api/admin/payment-settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok && data.status === 'success') {
+                    showToast('✅ Discord davet ve ticket ayarları başarıyla kaydedildi!');
+                } else {
+                    showToast(data.message || 'Kaydetme başarısız!', true);
+                }
+            } catch (err) {
+                showToast('Hata!', true);
+            }
+        }
+
+        // CHANGE PASSWORD MODAL & LOGIC
+        function openChangePasswordModal() {
+            document.getElementById('change-pwd-modal').classList.remove('hidden');
+            document.getElementById('pwd-old').value = '';
+            document.getElementById('pwd-new').value = '';
+            document.getElementById('pwd-new-repeat').value = '';
+        }
+
+        function closeChangePasswordModal() {
+            document.getElementById('change-pwd-modal').classList.add('hidden');
+        }
+
+        async function handleChangePassword(e) {
+            e.preventDefault();
+            const oldPw = document.getElementById('pwd-old').value.trim();
+            const newPw = document.getElementById('pwd-new').value.trim();
+            const newPwRepeat = document.getElementById('pwd-new-repeat').value.trim();
+
+            if (newPw !== newPwRepeat) {
+                showToast('Yeni şifreler eşleşmiyor!', true);
+                return;
+            }
+
+            const token = getToken();
+            try {
+                const res = await fetch('/api/auth/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ old_password: oldPw, new_password: newPw })
+                });
+                const data = await res.json();
+                if (res.ok && data.status === 'success') {
+                    closeChangePasswordModal();
+                    showToast('🎉 Şifreniz başarıyla güncellendi!');
+                } else {
+                    showToast(data.message || 'Şifre değiştirilemedi!', true);
+                }
+            } catch(err) {
+                showToast('Sunucu bağlantı hatası!', true);
+            }
+        }
+
+        async function loadPinsStatus() {
+            try {
+                const res = await fetch('/api/status');
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('pins-count-badge').textContent = `${data.total_pins} PIN Mevcut`;
+                }
+            } catch(e) {}
+        }
+
+        // CREATE KEY MODAL
+        function openCreateKeyModal() {
+            document.getElementById('create-key-modal').classList.remove('hidden');
+        }
+
+        function closeCreateKeyModal() {
+            document.getElementById('create-key-modal').classList.add('hidden');
+        }
+
+        async function handleManualCreateKey(e) {
+            e.preventDefault();
+            const plan = document.getElementById('gen-plan').value;
+            const note = document.getElementById('gen-note').value.trim();
+            const token = getToken();
+
+            try {
+                const res = await fetch('/api/admin/create-key', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ plan: plan, note: note })
+                });
+                const data = await res.json();
+                if (res.ok && data.status === 'success') {
+                    closeCreateKeyModal();
+                    showToast(`Lisans anahtarı üretildi: ${data.key}`);
+                    loadAllData();
+                } else {
+                    showToast(data.message || 'Üretim başarısız!', true);
+                }
+            } catch(err) {
+                showToast('Sunucu bağlantı hatası!', true);
+            }
+        }
+
+        // Sayfa Başlangıcı
+        window.addEventListener('DOMContentLoaded', () => {
+            initAuth();
+        });
+    </script>
+</body>
+</html>

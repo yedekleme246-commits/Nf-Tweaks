@@ -1,0 +1,2 @@
+# NF Tweaks Web Server uses only Python standard library.
+# No external dependencies required.

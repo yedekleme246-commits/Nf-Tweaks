@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NF Tweaks | Sunucu Adresi & Discord Topluluğu</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Rajdhani:wght@500;600;700;800&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        nfdark: '#07090e',
+                        nfcard: 'rgba(15, 20, 32, 0.75)',
+                        nfaccent: '#00f0ff',
+                        nfgreen: '#10b981',
+                        nfviolet: '#8b5cf6',
+                        nfbuzz: '#ff0055'
+                    },
+                    fontFamily: {
+                        tech: ['Rajdhani', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                        sans: ['"Space Grotesk"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #07090e;
+            color: #e2e8f0;
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 75%, rgba(0, 240, 255, 0.07) 0%, transparent 45%),
+                linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
+        }
+
+        .glow-border {
+            border: 1px solid rgba(0, 240, 255, 0.25);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.12), inset 0 0 15px rgba(0, 240, 255, 0.04);
+        }
+
+        .glow-border-blue {
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.2);
+        }
+
+        .neon-btn {
+            background: linear-gradient(135deg, #00f0ff 0%, #0099ff 100%);
+            box-shadow: 0 0 22px rgba(0, 240, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .neon-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 32px rgba(0, 240, 255, 0.65);
+        }
+
+        .discord-btn {
+            background: linear-gradient(135deg, #5865F2 0%, #4752C4 100%);
+            box-shadow: 0 0 25px rgba(88, 101, 242, 0.45);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .discord-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 35px rgba(88, 101, 242, 0.7);
+        }
+
+        .glass-panel {
+            background: rgba(13, 18, 30, 0.82);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .scanline {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0, 0, 0, 0.15) 50%, rgba(0, 0, 0, 0.15));
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 99;
+            opacity: 0.35;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans selection:bg-nfaccent selection:text-nfdark">
+    <div class="scanline"></div>
+
+    <!-- ==================== ÜST MENÜ (NAVBAR) ==================== -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <a href="index.html" class="flex items-center space-x-3 group">
+                <img src="assets/nf_logo.png" alt="NF Tweaks Logo" class="h-12 w-auto object-contain drop-shadow-[0_0_15px_rgba(0,229,255,0.7)] group-hover:scale-105 transition">
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-tech text-2xl font-extrabold tracking-wider text-white">NF<span class="text-nfaccent">TWEAKS</span></span>
+                        <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-nfaccent/10 text-nfaccent border border-nfaccent/30">v2.4.0 FINAL</span>
+                    </div>
+                    <span class="text-[10px] text-gray-400 font-mono tracking-widest block uppercase">Kernel FPS Booster</span>
+                </div>
+            </a>
+
+            <!-- SAYFA MENÜSÜ -->
+            <nav class="hidden md:flex items-center space-x-1 p-1.5 rounded-2xl bg-black/40 border border-white/5">
+                <a href="index.html" class="px-5 py-2.5 rounded-xl font-tech font-bold text-sm text-gray-300 hover:text-white hover:bg-white/5 flex items-center space-x-2 transition">
+                    <i class="fa-solid fa-wand-magic-sparkles text-nfaccent"></i>
+                    <span>TWEAK TANITIMI</span>
+                </a>
+                <a href="pricing.html" class="px-5 py-2.5 rounded-xl font-tech font-bold text-sm text-gray-300 hover:text-white hover:bg-white/5 flex items-center space-x-2 transition">
+                    <i class="fa-solid fa-tags text-nfviolet"></i>
+                    <span>FİYATLANDIRMA</span>
+                </a>
+                <a href="server.html" class="px-5 py-2.5 rounded-xl font-tech font-bold text-sm text-blue-400 bg-blue-500/15 border border-blue-500/30 shadow-sm flex items-center space-x-2 transition">
+                    <i class="fa-brands fa-discord"></i>
+                    <span>SUNUCU ADRESİ</span>
+                </a>
+                <a href="download.html" class="px-5 py-2.5 rounded-xl font-tech font-bold text-sm text-gray-300 hover:text-white hover:bg-white/5 flex items-center space-x-2 transition">
+                    <i class="fa-solid fa-key text-nfgreen"></i>
+                    <span>PIN & İNDİRME</span>
+                </a>
+            </nav>
+
+            <div class="flex items-center space-x-3">
+                <a href="admin.html" class="px-4 py-2.5 rounded-xl font-tech font-bold text-xs text-yellow-400 bg-yellow-400/10 hover:bg-yellow-400/20 border border-yellow-400/30 flex items-center space-x-1.5 transition">
+                    <i class="fa-solid fa-crown"></i>
+                    <span>YÖNETİM PANELİ</span>
+                </a>
+                <a href="download.html" class="neon-btn px-6 py-2.5 rounded-xl font-tech font-extrabold text-sm text-nfdark flex items-center space-x-2 uppercase tracking-wide">
+                    <i class="fa-solid fa-download"></i>
+                    <span>KEY İLE İNDİR</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== SUNUCU MERKEZİ HERO ==================== -->
+    <main class="flex-1 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <div class="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-mono mb-4">
+                    <i class="fa-brands fa-discord"></i>
+                    <span>RESMİ TOPLULUK MERKEZİ</span>
+                </div>
+                <h1 class="text-4xl sm:text-6xl font-tech font-extrabold text-white uppercase tracking-wide">
+                    NF PACK RESMİ DİSCORD & SUNUCULARI
+                </h1>
+                <p class="text-gray-300 text-sm sm:text-base mt-4 max-w-2xl mx-auto leading-relaxed">
+                    Lisans satın alımları, 7/24 teknik ticket desteği, FiveM özel PVP etkinlikleri ve otomatik rol sistemimiz Discord sunucumuzda aktiftir.
+                </p>
+            </div>
+
+            <!-- ==================== DİSCORD SUNUCU KARTI ==================== -->
+            <div class="glass-panel rounded-3xl p-8 sm:p-12 glow-border-blue relative overflow-hidden mb-16 max-w-4xl mx-auto">
+                <div class="absolute -right-20 -bottom-20 w-64 h-64 bg-blue-600/15 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
+                    <!-- Sol: Discord Bilgileri -->
+                    <div class="flex items-center space-x-6">
+                        <div class="w-24 h-24 rounded-2xl bg-gradient-to-br from-[#0c1427] to-[#141d33] border border-nfaccent/30 flex items-center justify-center p-2.5 shadow-2xl shadow-nfaccent/20 shrink-0 relative group">
+                            <img src="assets/nf_logo.png" alt="NF Pack Logo" class="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(0,229,255,0.7)] group-hover:scale-110 transition duration-300">
+                            <span class="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-[#5865F2] flex items-center justify-center text-white text-xs shadow">
+                                <i class="fa-brands fa-discord"></i>
+                            </span>
+                        </div>
+                        <div>
+                            <div class="flex items-center space-x-3 mb-1">
+                                <h2 class="text-3xl font-tech font-bold text-white uppercase">NF PACK RESMİ DİSCORD</h2>
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            </div>
+                            <p class="text-gray-400 text-xs font-mono mb-3">En Hızlı Müşteri Destek & Lisans Dağıtım Kanalı</p>
+                            
+                            <!-- Gerçekçi ve Canlı İstatistikler -->
+                            <div class="flex items-center space-x-4 text-xs font-mono">
+                                <span id="dc-online-count" class="flex items-center text-emerald-400">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block mr-1.5 animate-pulse"></span>
+                                    31+ Çevrimiçi
+                                </span>
+                                <span class="text-gray-500">•</span>
+                                <span id="dc-total-count" class="text-gray-300">68+ Toplam Üye</span>
+                                <span class="text-gray-500">•</span>
+                                <span class="text-pink-400 flex items-center">
+                                    <i class="fa-solid fa-gem mr-1 text-[10px]"></i> 14+ Boost (Seviye 3)
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sağ: Hızlı Bağlantı & Kopyalama -->
+                    <div class="flex flex-col space-y-3 w-full md:w-auto shrink-0">
+                        <a href="https://discord.gg/kZDX8cfTp" target="_blank" class="discord-btn px-8 py-4 rounded-xl font-tech font-extrabold text-base text-white text-center flex items-center justify-center space-x-2.5 uppercase shadow-xl">
+                            <i class="fa-brands fa-discord text-xl"></i>
+                            <span>SUNUCUYA HEMEN KATIL</span>
+                        </a>
+
+                        <button onclick="copyToClipboard('https://discord.gg/kZDX8cfTp', 'Discord davet linki kopyalandı!')" class="px-6 py-3 rounded-xl font-mono text-xs text-gray-300 bg-black/60 hover:bg-black/80 border border-white/10 flex items-center justify-center space-x-2 transition">
+                            <i class="fa-regular fa-copy text-nfaccent"></i>
+                            <span>discord.gg/kZDX8cfTp</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sunucu Özellikleri Şeridi -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8 pt-8 border-t border-white/10 text-xs font-mono">
+                    <div class="flex items-center space-x-3 text-gray-300">
+                        <i class="fa-solid fa-circle-check text-nfgreen text-base"></i>
+                        <span>#rules Kanalında Otomatik Tik Onayı</span>
+                    </div>
+                    <div class="flex items-center space-x-3 text-gray-300">
+                        <i class="fa-solid fa-gem text-pink-400 text-base"></i>
+                        <span>1x & 2x Boost Seviye Rolleri</span>
+                    </div>
+                    <div class="flex items-center space-x-3 text-gray-300">
+                        <i class="fa-solid fa-headset text-nfaccent text-base"></i>
+                        <span>7/24 Aktif Ticket & AnyDesk Masası</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== HIZLI BAĞLANTI IP VE SUNUCULAR ==================== -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+                <!-- FiveM PVP Sunucusu -->
+                <div class="glass-panel rounded-3xl p-8 border border-orange-500/30 hover:border-orange-500/50 transition space-y-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center space-x-3 mb-3">
+                            <div class="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400">
+                                <i class="fa-solid fa-crosshairs text-xl"></i>
+                            </div>
+                            <h3 class="text-xl font-tech font-bold text-white uppercase">TWEAK'İ DENEYEBİLECEĞİNİZ PVP SUNUCUMUZ</h3>
+                        </div>
+
+                        <p class="text-gray-300 text-xs leading-relaxed">
+                            Tweak testlerinizi, mermi tescili (hit-reg) ve DPC gecikme kıyaslamalarınızı yapabileceğiniz özel PvP topluluğumuz. Sunucu giriş detayları ve etkinlik duyuruları doğrudan Discord PvP sunucumuz üzerinden paylaşılmaktadır.
+                        </p>
+                    </div>
+
+                    <!-- Discord PvP Sunucusu (discord.gg/nfpvp) -->
+                    <div class="bg-black/60 rounded-xl p-3.5 border border-[#5865F2]/40 flex items-center justify-between font-mono text-xs">
+                        <div class="flex items-center space-x-2.5 truncate">
+                            <i class="fa-brands fa-discord text-[#5865F2] text-lg shrink-0"></i>
+                            <span class="text-blue-300 font-bold truncate">discord.gg/nfpvp</span>
+                        </div>
+                        <div class="flex items-center space-x-2 shrink-0 ml-2">
+                            <button onclick="copyToClipboard('discord.gg/nfpvp', 'Discord PvP davet linki kopyalandı!')" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition text-xs flex items-center space-x-1" title="Kopyala">
+                                <i class="fa-regular fa-copy"></i>
+                                <span>Kopyala</span>
+                            </button>
+                            <a href="https://discord.gg/nfpvp" target="_blank" class="px-4 py-1.5 rounded-lg bg-[#5865F2] hover:bg-[#4752c4] text-white transition text-xs font-bold flex items-center space-x-1.5 shadow-md shadow-[#5865F2]/30">
+                                <span>Katıl</span>
+                                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resmi Web ve Destek Portalı -->
+                <div class="glass-panel rounded-3xl p-8 border border-white/10 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                                <i class="fa-solid fa-globe text-xl"></i>
+                            </div>
+                            <h3 class="text-xl font-tech font-bold text-white uppercase">Müşteri Portalı & Web Servisi</h3>
+                        </div>
+                        <span class="text-[10px] font-mono text-blue-400 bg-blue-500/10 px-2 py-1 rounded border border-blue-500/20">SSL 256-BIT</span>
+                    </div>
+
+                    <p class="text-gray-400 text-xs">
+                        Lisans anahtarınızla tek seferlik indirme PIN'i oluşturabileceğiniz ve en güncel NF Tweaks .exe dosyasını indirebileceğiniz portal.
+                    </p>
+
+                    <div class="bg-black/60 rounded-xl p-3.5 border border-white/10 flex items-center justify-between font-mono text-xs">
+                        <span class="text-emerald-400">https://nftweaks.com/download.html</span>
+                        <a href="download.html" class="px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 transition text-[11px] flex items-center space-x-1">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            <span>Git</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== SUNUCU SAHİBİ & KURUCU PROFİLİ ==================== -->
+            <div class="glass-panel rounded-3xl p-8 border border-red-500/30 glow-border-purple mb-16 max-w-4xl mx-auto">
+                <div class="text-center mb-8">
+                    <span class="text-xs font-mono uppercase text-red-400 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/25">Sunucu Yönetimi</span>
+                    <h3 class="text-3xl font-tech font-bold text-white uppercase mt-2">SUNUCU SAHİBİ & FOUNDER</h3>
+                    <p class="text-gray-400 text-xs mt-1">NF Pack ve NF Tweaks projesinin kurucusu ve tek sunucu owner'ı</p>
+                </div>
+
+                <!-- DİSCORD PROFİL KARTI (Orijinal Discord Client Görünümü) -->
+                <div class="max-w-xl mx-auto bg-[#111214] rounded-3xl border border-white/10 overflow-hidden shadow-2xl relative transition hover:border-red-500/40">
+                    <!-- Üst Banner (1024px High-Res Berserk Eclipse Skull) -->
+                    <div class="h-48 w-full bg-cover bg-center relative" style="background-image: url('assets/og_banner.png');">
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#111214] via-transparent to-black/20"></div>
+                        <!-- Rozet Kapsülü (Sağ Üst) -->
+                        <div class="absolute top-3.5 right-3.5 flex items-center space-x-2 bg-[#111214]/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 shadow-lg">
+                            <img src="assets/nfr_badge.png" alt="NFR" class="w-4 h-4 object-contain" title="Clan [NFR]">
+                            <span class="text-xs font-mono font-bold text-white tracking-wide">NFR</span>
+                            <span class="text-gray-500 text-xs">|</span>
+                            <span class="text-yellow-400 text-xs" title="Server Owner"><i class="fa-solid fa-crown"></i></span>
+                            <span class="text-pink-400 text-xs" title="Nitro Subscriber"><i class="fa-solid fa-bolt"></i></span>
+                            <span class="text-purple-400 text-xs" title="Server Booster"><i class="fa-solid fa-gem"></i></span>
+                        </div>
+                    </div>
+
+                    <!-- Profil İçeriği -->
+                    <div class="px-6 pb-6 pt-0 relative">
+                        <!-- Avatar & Rozetler -->
+                        <div class="flex items-end justify-between -mt-16 mb-4">
+                            <div class="relative shrink-0">
+                                <div class="w-28 h-28 rounded-full border-4 border-[#111214] overflow-hidden bg-[#111214] shadow-2xl">
+                                    <img src="assets/og_avatar.png" alt="OGDovmesi" class="w-full h-full object-cover">
+                                </div>
+                                <!-- Gerçek Discord DND (Rahatsız Etmeyin) Rozeti -->
+                                <div class="absolute bottom-1 right-1 w-7 h-7 rounded-full bg-[#111214] flex items-center justify-center">
+                                    <div class="w-5 h-5 rounded-full bg-[#f23f43] flex items-center justify-center shadow" title="Rahatsız Etmeyin">
+                                        <div class="w-2.5 h-0.5 bg-white rounded-full"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Rol Rozetleri -->
+                            <div class="flex items-center space-x-2 mb-2">
+                                <span class="px-3 py-1 rounded-full bg-red-600/20 text-red-400 border border-red-500/40 text-xs font-mono font-bold flex items-center space-x-1.5 shadow-sm">
+                                    <img src="assets/nfr_badge.png" class="w-3.5 h-3.5" alt="NFR">
+                                    <span>[NFR]</span>
+                                </span>
+                                <span class="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 text-xs font-mono font-bold flex items-center space-x-1 shadow-sm">
+                                    <i class="fa-solid fa-crown text-yellow-400"></i>
+                                    <span>OWNER</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- İsim & Handle & ID -->
+                        <div class="mb-4">
+                            <div class="flex items-center space-x-2">
+                                <h4 class="text-2xl sm:text-3xl font-tech font-extrabold text-white tracking-wide drop-shadow-[0_0_12px_rgba(239,68,68,0.5)]">
+                                    OGDovmesi
+                                </h4>
+                                <span class="text-red-500 text-xl">🌙</span>
+                            </div>
+                            
+                            <div class="flex items-center flex-wrap gap-2 text-xs font-mono mt-1">
+                                <span class="text-gray-300 font-semibold">kutsalim.</span>
+                                <span class="text-gray-600">•</span>
+                                <button onclick="copyToClipboard('1116804738009272412', 'Discord ID kopyalandı!')" class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-white transition cursor-pointer" title="ID Kopyala">
+                                    <i class="fa-regular fa-copy text-nfaccent text-[10px]"></i>
+                                    <span>ID: 1116804738009272412</span>
+                                </button>
+                            </div>
+
+                            <!-- Durum Mesajı (revas) -->
+                            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-xl bg-[#232428] border border-white/10 text-xs font-mono text-gray-200 mt-2.5">
+                                <i class="fa-regular fa-comment-dots text-red-400"></i>
+                                <span class="font-semibold">revas</span>
+                            </div>
+                        </div>
+
+                        <!-- Discord Gövde Kutusu -->
+                        <div class="bg-[#232428] rounded-2xl p-4 sm:p-5 border border-white/5 space-y-4 font-mono text-xs">
+                            <div>
+                                <span class="text-[10px] text-gray-400 uppercase tracking-wider block font-bold mb-1">HAKKIMDA</span>
+                                <p class="text-white font-bold text-sm tracking-wide">
+                                    kutsalim. • discord.gg/kZDX8cfTp
+                                </p>
+                                <p class="text-gray-300 text-[11px] leading-relaxed mt-1">
+                                    NF Pack ve NF Tweaks'in kurucusu, sistem mimarı ve tek yetkilisidir. Lisans onayları, teknik biletler ve özel müşteri talepleri doğrudan kendisi tarafından denetlenir ve onaylanır.
+                                </p>
+                            </div>
+
+                            <!-- Roller -->
+                            <div>
+                                <span class="text-[10px] text-gray-400 uppercase tracking-wider block font-bold mb-2">ROLLER</span>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-2.5 py-1 rounded-lg bg-[#2b2d31] border border-red-500/30 text-red-400 text-xs font-bold flex items-center space-x-1.5">
+                                        <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                                        <span>Sunucu Sahibi</span>
+                                    </span>
+                                    <span class="px-2.5 py-1 rounded-lg bg-[#2b2d31] border border-purple-500/30 text-purple-300 text-xs font-bold flex items-center space-x-1.5">
+                                        <span class="w-2 h-2 rounded-full bg-purple-400"></span>
+                                        <span>NF Mimar</span>
+                                    </span>
+                                    <span class="px-2.5 py-1 rounded-lg bg-[#2b2d31] border border-pink-500/30 text-pink-400 text-xs font-bold flex items-center space-x-1.5">
+                                        <span class="w-2 h-2 rounded-full bg-pink-400"></span>
+                                        <span>24+ Ay Booster</span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Butonlar -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 border-t border-white/5">
+                                <a href="https://discord.com/users/1116804738009272412" target="_blank" class="py-3 px-4 rounded-xl bg-[#5865F2] hover:bg-[#4752c4] text-white font-tech font-bold text-xs flex items-center justify-center space-x-2 transition shadow-lg shadow-[#5865F2]/25">
+                                    <i class="fa-brands fa-discord text-sm"></i>
+                                    <span>DİSCORD PROFİLİNİ AÇ</span>
+                                </a>
+                                <a href="https://discord.gg/kZDX8cfTp" target="_blank" class="py-3 px-4 rounded-xl bg-gradient-to-r from-red-600 to-rose-700 hover:brightness-110 text-white font-tech font-bold text-xs flex items-center justify-center space-x-2 transition shadow-lg shadow-red-600/25">
+                                    <i class="fa-brands fa-discord text-sm"></i>
+                                    <span>NF PACK DİSCORD'A KATIL</span>
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== SUNUCU VE LİSANS KURALLARI ==================== -->
+            <div class="glass-panel rounded-3xl p-8 border border-white/10">
+                <h4 class="text-2xl font-tech font-bold text-white uppercase mb-4 flex items-center space-x-2">
+                    <i class="fa-solid fa-gavel text-yellow-400"></i>
+                    <span>TOPLULUK VE LİSANS KURALLARI</span>
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono text-gray-300">
+                    <div class="bg-black/40 p-4 rounded-xl border border-white/5">
+                        <span class="text-white font-bold block mb-1">1. Tek Cihaz (HWID) Lisans Kuralı:</span>
+                        Her lisans anahtarı kullanıcının anakart ve donanım kimliğine (HWID) kilitlenir. Başka bilgisayarlara izinsiz aktarılamaz.
+                    </div>
+                    <div class="bg-black/40 p-4 rounded-xl border border-white/5">
+                        <span class="text-white font-bold block mb-1">2. Tek Seferlik PIN Güvenliği:</span>
+                        Oluşturulan her Güvenlik PIN'i ile en fazla 1 kez indirme yapılabilir. İndirme yapıldığı anda PIN yakılır ve tekrar kullanılamaz.
+                    </div>
+                    <div class="bg-black/40 p-4 rounded-xl border border-white/5">
+                        <span class="text-white font-bold block mb-1">3. Resmi Destek Kanalları:</span>
+                        Destek yalnızca resmi Discord sunucumuzdaki bilet (ticket) sistemi üzerinden sağlanır. Yetkili taklidi yapanlara itibar etmeyiniz.
+                    </div>
+                    <div class="bg-black/40 p-4 rounded-xl border border-white/5">
+                        <span class="text-white font-bold block mb-1">4. Anti-Tamper & Güvenlik Politikası:</span>
+                        Yazılımın tersine mühendisliğe veya crack girişimlerine tabi tutulması durumunda lisans anında otomatik karalisteye alınır.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Bildirim Toast'u -->
+    <div id="toast" class="fixed bottom-6 right-6 px-5 py-3 rounded-xl bg-black/90 border border-nfaccent text-white text-xs font-mono shadow-2xl opacity-0 pointer-events-none transition-all duration-300 z-50 flex items-center space-x-2">
+        <i class="fa-solid fa-circle-check text-nfgreen text-sm"></i>
+        <span id="toast-msg">Metin kopyalandı!</span>
+    </div>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="glass-panel border-t border-white/10 py-10 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center space-x-3">
+                <img src="assets/nf_logo.png" alt="NF Logo" class="h-9 w-auto object-contain drop-shadow-[0_0_12px_rgba(0,229,255,0.6)]">
+                <span class="font-tech text-lg font-bold text-white tracking-wide">NF<span class="text-nfaccent">TWEAKS</span> PERFORMANCE SUITE</span>
+            </div>
+            <div class="flex flex-wrap justify-center gap-6 text-xs font-mono text-gray-400">
+                <a href="index.html" class="hover:text-nfaccent transition">Tweak Tanıtımı</a>
+                <a href="pricing.html" class="hover:text-nfaccent transition">Fiyatlandırma</a>
+                <a href="server.html" class="hover:text-nfaccent transition">Sunucu & Discord</a>
+                <a href="download.html" class="hover:text-nfaccent transition">PIN İle İndir</a>
+            </div>
+            <p class="text-xs text-gray-500 font-mono">
+                &copy; 2026 NF Technologies Inc. Tüm hakları saklıdır.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        function copyToClipboard(text, msg) {
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('toast');
+                document.getElementById('toast-msg').textContent = msg || 'Kopyalandı!';
+                toast.classList.remove('opacity-0', 'pointer-events-none');
+                setTimeout(() => {
+                    toast.classList.add('opacity-0', 'pointer-events-none');
+                }, 2500);
+            });
+        }
+
+        // Live Discord Server Stats Fetcher
+        (function fetchLiveDiscordStats() {
+            fetch('/api/discord-stats')
+                .then(r => r.json())
+                .then(res => {
+                    if (res && res.stats) {
+                        const s = res.stats;
+                        const onlineEl = document.getElementById('dc-online-count');
+                        const totalEl = document.getElementById('dc-total-count');
+                        if (onlineEl && s.approximate_presence_count) {
+                            onlineEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 inline-block mr-1.5 animate-pulse"></span>${s.approximate_presence_count}+ Çevrimiçi (Canlı)`;
+                        }
+                        if (totalEl && s.approximate_member_count) {
+                            totalEl.textContent = `${s.approximate_member_count}+ Toplam Üye`;
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.log('Discord live stats fallback');
+                });
+        })();
+    </script>
+</body>
+</html>

@@ -7,5 +7,15 @@
         "downloaded_at": "28.10.2026 15:56:47",
         "max_allowed": 1,
         "client_ip": "::1"
+    },
+    "177404": {
+        "key": "ADMIN_MANUAL_PIN",
+        "created_at": "28.10.2026 17:39:13",
+        "used": false,
+        "download_count": 0,
+        "downloaded_at": null,
+        "max_allowed": 1,
+        "note": "Test PIN",
+        "created_by": "ogdovmesi"
     }
 }

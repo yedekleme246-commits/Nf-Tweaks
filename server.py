@@ -23,8 +23,8 @@ PINS_DB_PATH = os.path.join(BASE_DIR, "pins_db.json")
 USERS_DB_PATH = os.path.join(BASE_DIR, "users_db.json")
 ORDERS_DB_PATH = os.path.join(BASE_DIR, "orders_db.json")
 PAYMENT_SETTINGS_PATH = os.path.join(BASE_DIR, "payment_settings.json")
-KEYS_DB_PATH = os.path.join(PARENT_DIR, "admin_keys_db.json")
-VALID_KEYS_PATH = os.path.join(PARENT_DIR, "valid_keys.json")
+KEYS_DB_PATH = os.path.join(BASE_DIR, "keys_db.json")
+VALID_KEYS_PATH = os.path.join(BASE_DIR, "valid_keys.json")
 
 # Discord Live Stats Cache (60 seconds)
 DISCORD_STATS_CACHE = {
@@ -338,15 +338,53 @@ class NFPortalRequestHandler(SimpleHTTPRequestHandler):
                 }
             })
 
+        # 6.1 API: Admin PINs List
+        elif path == "/api/admin/pins":
+            user = self._get_auth_user(query)
+            if not user or user.get("role") not in ("owner", "admin"):
+                return self._send_json(403, {"status": "error", "message": "Yetkisiz erişim!"})
+
+            pins_db = load_json(PINS_DB_PATH, {})
+            pin_list = []
+            for pin, p in sorted(pins_db.items(), key=lambda x: str(x[1].get("created_at", "")), reverse=True):
+                p_copy = dict(p)
+                p_copy["pin"] = pin
+                pin_list.append(p_copy)
+
+            return self._send_json(200, {
+                "status": "success",
+                "pins": pin_list,
+                "total_pins": len(pin_list)
+            })
+
+        # 6.2 API: Admin Keys List
+        elif path == "/api/admin/keys":
+            user = self._get_auth_user(query)
+            if not user or user.get("role") not in ("owner", "admin"):
+                return self._send_json(403, {"status": "error", "message": "Yetkisiz erişim!"})
+
+            keys_db = load_json(KEYS_DB_PATH, {})
+            key_list = []
+            for k, val in sorted(keys_db.items(), key=lambda x: str(x[1].get("created_at", "")), reverse=True):
+                item = dict(val)
+                item["key"] = k
+                key_list.append(item)
+
+            return self._send_json(200, {
+                "status": "success",
+                "keys": key_list,
+                "total_keys": len(key_list)
+            })
+
         # 7. API: Download Executable with Key + PIN (Enforces 1-time PIN rule)
         elif path == "/api/download-tweak":
             key = (query.get("key", [""])[0]).strip().upper()
             pin = (query.get("pin", [""])[0]).strip()
 
-            if not key or not pin:
+            if not pin:
                 return self._send_json(400, {
                     "status": "error",
-                    "message": "Lisans anahtarı ve güvenlik PIN'i zorunludur."
+                    "message": "Güvenlik PIN'i zorunludur."
                 })
 
             pins_db = load_json(PINS_DB_PATH, {})
@@ -358,7 +396,8 @@ class NFPortalRequestHandler(SimpleHTTPRequestHandler):
                     "message": "Geçersiz veya bulunamayan Güvenlik PIN'i!"
                 })
 
-            if pin_data.get("key", "").upper() != key:
+            # Check if matching key or admin manual pin
+            if pin_data.get("key") != "ADMIN_MANUAL_PIN" and pin_data.get("key", "").upper() != key:
                 return self._send_json(403, {
                     "status": "error",
                     "message": "Bu PIN girilen lisans anahtarıyla eşleşmiyor!"
@@ -851,6 +890,47 @@ class NFPortalRequestHandler(SimpleHTTPRequestHandler):
                 "key": key,
                 "plan_label": plan_label,
                 "message": f"Manuel lisans anahtarı üretildi ve sisteme kaydedildi: {key}"
+            })
+
+        # 16. API: Admin Manual PIN Generator
+        elif path == "/api/admin/create-pin":
+            user = self._get_auth_user()
+            if not user or user.get("role") not in ("owner", "admin"):
+                return self._send_json(403, {"status": "error", "message": "Yetkisiz işlem!"})
+
+            pins_db = load_json(PINS_DB_PATH, {})
+            custom_pin = (str(req_data.get("pin") or "")).strip()
+            note = (req_data.get("note") or f"Admin Üretimi ({user['username']})").strip()
+
+            if custom_pin:
+                if len(custom_pin) < 4 or len(custom_pin) > 10:
+                    return self._send_json(400, {"status": "error", "message": "PIN 4-10 hane arasında olmalıdır."})
+                pin = custom_pin
+            else:
+                for _ in range(50):
+                    cand = str(random.randint(100000, 999999))
+                    if cand not in pins_db:
+                        pin = cand
+                        break
+                else:
+                    pin = str(random.randint(100000, 999999))
+
+            now = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+            pins_db[pin] = {
+                "key": "ADMIN_MANUAL_PIN",
+                "created_at": now,
+                "used": False,
+                "download_count": 0,
+                "downloaded_at": None,
+                "max_allowed": 1,
+                "note": note,
+                "created_by": user["username"]
+            }
+            save_json(PINS_DB_PATH, pins_db)
+            return self._send_json(200, {
+                "status": "success",
+                "pin": pin,
+                "message": f"Tek seferlik indirme PIN'i ({pin}) başarıyla oluşturuldu!"
             })
 
         # ==========================================

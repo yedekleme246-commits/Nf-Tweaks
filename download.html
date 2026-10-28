@@ -454,7 +454,7 @@
         // ==================== ADIM 1: LİSANS ANAHTARI DOĞRULAMA ====================
         async function verifyLicenseKey() {
             const key = keyInput.value.trim().toUpperCase();
-            if (!key || key.length < 10) {
+            if (!key || key.length < 5) {
                 showToast("Lütfen geçerli bir lisans anahtarı giriniz!", false);
                 return;
             }
@@ -464,24 +464,22 @@
             btn.disabled = true;
 
             try {
-                // Önce server.py API'sini dene
+                // Sunucu veritabanında kesin doğrulama
                 const res = await fetch('/api/verify-key', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ key: key })
                 });
 
-                if (res.ok) {
-                    const data = await res.json();
+                const data = await res.json().catch(() => ({}));
+
+                if (res.ok && data.status === 'success') {
                     handleKeyVerifiedSuccess(key, data.plan_label);
                 } else {
-                    const err = await res.json().catch(() => ({}));
-                    // Sunucu çalışmıyorsa veya offline ise LocalStorage / Mock fallback kontrolü
-                    fallbackClientKeyVerification(key, err.message || "Geçersiz lisans anahtarı!");
+                    handleKeyVerifiedError(data.message || "Geçersiz veya veritabanında bulunamayan lisans anahtarı!");
                 }
             } catch (err) {
-                // Sunucu kapalıysa istemci tarafı yedek doğrulama
-                fallbackClientKeyVerification(key, "Sunucuya bağlanılamadı, yerel doğrulama yapılıyor.");
+                handleKeyVerifiedError("Sunucuya bağlanılamadı. Lütfen internet bağlantınızı kontrol ediniz.");
             } finally {
                 btn.innerHTML = '<i class="fa-solid fa-key"></i> <span>ANAHTARI DOĞRULA</span>';
                 btn.disabled = false;
@@ -496,7 +494,10 @@
 
             const successBox = document.getElementById('key-success-box');
             successBox.classList.remove('hidden');
-            document.getElementById('key-success-title').textContent = "Lisans Anahtarı Başarıyla Doğrulandı!";
+            successBox.className = "mt-4 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs font-mono";
+            document.getElementById('key-success-title').className = "text-emerald-400 font-bold flex items-center";
+            document.getElementById('key-success-title').innerHTML = '<i class="fa-solid fa-circle-check mr-1.5 text-emerald-400"></i> Lisans Anahtarı Başarıyla Doğrulandı!';
+            document.getElementById('key-success-desc').className = "text-gray-300 mt-1";
             document.getElementById('key-success-desc').textContent = "Paket: " + (planLabel || "Lifetime Sınırsız VIP Lisansı");
 
             // 2. Adımı Aktif Et
@@ -514,15 +515,34 @@
             showToast("Lisans doğrulandı! Şimdi tek seferlik PIN'inizi belirleyin.");
         }
 
-        // İstemci tarafı fallback (Sunucu olmadan statik html çalıştırıldığında)
-        function fallbackClientKeyVerification(key, serverErrMsg) {
-            // Basit format kontrolü: XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
-            const regex = /^[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}$/;
-            if (regex.test(key)) {
-                handleKeyVerifiedSuccess(key, "Ömür Boyu (Lifetime) Lisansı");
-            } else {
-                showToast("HATA: " + serverErrMsg, false);
-            }
+        function handleKeyVerifiedError(errMsg) {
+            currentVerifiedKey = "";
+            const badge = document.getElementById('badge-step-1');
+            badge.className = "text-xs font-mono px-3 py-1 rounded-full bg-red-500/10 text-red-400 border border-red-500/30 font-bold";
+            badge.textContent = "GEÇERSİZ KOD ✗";
+
+            const successBox = document.getElementById('key-success-box');
+            successBox.classList.remove('hidden');
+            successBox.className = "mt-4 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-xs font-mono";
+            document.getElementById('key-success-title').className = "text-red-400 font-bold flex items-center";
+            document.getElementById('key-success-title').innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1.5 text-red-400"></i> Lisans Anahtarı Tanımsız!';
+            document.getElementById('key-success-desc').className = "text-gray-300 mt-1";
+            document.getElementById('key-success-desc').textContent = errMsg || "Bu lisans anahtarı yönetim panelinde kayıtlı değildir. Yalnızca yetkili tarafından verilen geçerli kodlar onaylanır.";
+
+            // 2. ve 3. Adımı KİLİTLE
+            const step2 = document.getElementById('step-card-2');
+            step2.classList.add('step-inactive');
+            step2.classList.remove('glow-border');
+            document.getElementById('badge-step-2').className = "text-xs font-mono px-3 py-1 rounded-full bg-gray-800 text-gray-400 border border-white/10";
+            document.getElementById('badge-step-2').textContent = "KİLİTLİ";
+
+            const step3 = document.getElementById('step-card-3');
+            step3.classList.add('step-inactive');
+            step3.classList.remove('glow-border-green');
+            document.getElementById('badge-step-3').className = "text-xs font-mono px-3 py-1 rounded-full bg-gray-800 text-gray-400 border border-white/10";
+            document.getElementById('badge-step-3').textContent = "KİLİTLİ";
+
+            showToast("HATA: Tanımsız lisans anahtarı! Rastgele kodlar kabul edilmez.", false);
         }
 
         // ==================== ADIM 2: TEK SEFERLİK PIN OLUŞTURMA ====================
@@ -551,7 +571,7 @@
 
                 const data = await res.json().catch(() => ({}));
 
-                if (res.ok) {
+                if (res.ok && data.status === 'success') {
                     handlePinCreatedSuccess(pin);
                 } else {
                     if (data.error_code === "PIN_ALREADY_EXISTS_AND_USED") {
@@ -561,31 +581,14 @@
                     }
                 }
             } catch (e) {
-                // İstemci tarafı localStorage tabanlı PIN kuralı (Offline / Statik Sunucu Koruması)
-                handleLocalPinRegistration(pin);
+                showToast("Sunucu hatası: PIN kaydedilemedi.", false);
             } finally {
                 btn.innerHTML = '<i class="fa-solid fa-check-double"></i> <span>PIN\'İ KAYDET VE DOĞRULA</span>';
                 btn.disabled = false;
             }
         }
 
-        function handleLocalPinRegistration(pin) {
-            // LocalStorage'da pin geçmişini kontrol et
-            const localUsedPins = JSON.parse(localStorage.getItem('nf_used_pins') || "{}");
-            if (localUsedPins[pin] && localUsedPins[pin].used) {
-                showErrorModal("Bu PIN (" + pin + ") daha önce kullanılmış ve tek seferlik hakkı dolmuştur! Lütfen farklı bir PIN belirleyiniz.");
-                return;
-            }
 
-            localUsedPins[pin] = {
-                key: currentVerifiedKey,
-                created_at: new Date().toLocaleString(),
-                used: false,
-                download_count: 0
-            };
-            localStorage.setItem('nf_used_pins', JSON.stringify(localUsedPins));
-            handlePinCreatedSuccess(pin);
-        }
 
         function handlePinCreatedSuccess(pin) {
             currentPin = pin;

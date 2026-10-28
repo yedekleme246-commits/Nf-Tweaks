@@ -383,12 +383,21 @@
                 </div>
 
                 <div id="pins-summary-container" class="glass-panel rounded-3xl p-6 border border-white/10 font-mono text-xs">
-                    <div class="flex items-center justify-between mb-4">
-                        <h4 class="text-base font-tech font-bold text-white uppercase">GÜVENLİK PIN DURUMLARI</h4>
-                        <span id="pins-count-badge" class="px-2.5 py-1 rounded bg-white/10 text-gray-300 text-xs">0 PIN</span>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-white/10">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <h4 class="text-lg font-tech font-bold text-white uppercase">GÜVENLİK PIN HAVUZU</h4>
+                                <span id="pins-count-badge" class="px-2.5 py-0.5 rounded-full bg-nfaccent/10 text-nfaccent border border-nfaccent/30 text-xs font-bold">0 PIN</span>
+                            </div>
+                            <p class="text-gray-400 text-xs mt-0.5">Sistemdeki tüm tek seferlik indirme PIN'leri ve durumları.</p>
+                        </div>
+                        <button onclick="openCreatePinModal()" class="px-5 py-2.5 rounded-xl font-tech font-extrabold text-xs text-nfdark bg-nfaccent hover:contrast-125 transition uppercase flex items-center space-x-2 shadow-lg shadow-nfaccent/20 shrink-0">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>YENİ İNDİRME PIN'İ OLUŞTUR</span>
+                        </button>
                     </div>
                     <div id="pins-list" class="space-y-3">
-                        <div class="text-center py-8 text-gray-500">Henüz üretilmiş bir PIN bulunmuyor.</div>
+                        <div class="text-center py-8 text-gray-500">Yükleniyor...</div>
                     </div>
                 </div>
             </div>
@@ -460,6 +469,78 @@
                     <i class="fa-solid fa-bolt mr-1"></i> KODU OLUŞTUR VE ONAYLA
                 </button>
             </form>
+        </div>
+    </div>
+
+    <!-- ==================== MANUEL PIN ÜRETİM MODALI ==================== -->
+    <div id="create-pin-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-md w-full rounded-3xl p-6 sm:p-8 border border-nfaccent/30 relative shadow-2xl">
+            <button onclick="closeCreatePinModal()" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <h3 class="text-2xl font-tech font-bold text-white uppercase mb-2">MANUEL İNDİRME PIN'İ ÜRET</h3>
+            <p class="text-gray-400 text-xs font-mono mb-6">Müşteriye doğrudan tek seferlik 6 haneli indirme PIN'i verir.</p>
+
+            <form onsubmit="handleManualCreatePin(event)" class="space-y-4 font-mono text-xs">
+                <div>
+                    <label class="block text-gray-300 mb-1.5 uppercase font-bold">Özel PIN (İsteğe Bağlı)</label>
+                    <input id="gen-custom-pin" type="text" maxlength="10" placeholder="Boş bırakırsanız rastgele 6 haneli üretilir" class="w-full bg-black/60 border border-white/15 rounded-xl px-4 py-3 text-white focus:border-nfaccent outline-none">
+                </div>
+                <div>
+                    <label class="block text-gray-300 mb-1.5 uppercase font-bold">Müşteri / Açıklama Notu</label>
+                    <input id="gen-pin-note" type="text" placeholder="Örn: Discord Ticket #84 Özel Müşteri" class="w-full bg-black/60 border border-white/15 rounded-xl px-4 py-3 text-white focus:border-nfaccent outline-none">
+                </div>
+                <button type="submit" class="w-full py-4 rounded-xl font-tech font-extrabold text-sm text-nfdark bg-nfaccent hover:contrast-125 transition uppercase shadow-lg shadow-nfaccent/20">
+                    <i class="fa-solid fa-key mr-1"></i> PIN'İ OLUŞTUR
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== KOD / PIN OLUŞTURMA BAŞARILI VE KOPYALAMA MODALI ==================== -->
+    <div id="code-result-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-lg w-full rounded-3xl p-6 sm:p-8 border border-emerald-500/50 glow-border-green relative shadow-2xl text-center space-y-5">
+            <button onclick="closeCodeResultModal()" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-3xl mx-auto shadow-lg shadow-emerald-500/20">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+
+            <div>
+                <h3 id="result-modal-title" class="text-2xl font-tech font-extrabold text-white uppercase tracking-wide">
+                    LİSANS BAŞARIYLA OLUŞTURULDU!
+                </h3>
+                <p id="result-modal-subtitle" class="text-gray-400 text-xs font-mono mt-1">
+                    Aşağıdaki kodu tek tıkla kopyalayıp müşterinize gönderebilirsiniz:
+                </p>
+            </div>
+
+            <!-- Kod Görüntüleme Kutusu -->
+            <div class="bg-black/80 rounded-2xl p-4 border border-emerald-500/40 relative">
+                <span id="result-modal-code" class="text-xl sm:text-2xl font-mono font-extrabold text-emerald-400 tracking-wider break-all select-all block">
+                    NFTWK-XXXXX-XXXXX-XXXXX-XXXXX
+                </span>
+            </div>
+
+            <!-- Eylem Butonları -->
+            <div class="space-y-2.5 pt-1">
+                <button id="btn-copy-code-direct" onclick="copyResultCodeOnly()" class="w-full py-4 rounded-xl font-tech font-extrabold text-sm text-nfdark bg-emerald-400 hover:bg-emerald-300 transition uppercase shadow-xl shadow-emerald-500/25 flex items-center justify-center space-x-2">
+                    <i class="fa-regular fa-copy text-lg"></i>
+                    <span id="btn-copy-code-text">KODU KOPYALA</span>
+                </button>
+
+                <button id="btn-copy-discord-template" onclick="copyResultDiscordTemplate()" class="w-full py-3 rounded-xl font-mono text-xs text-white bg-[#5865F2] hover:bg-[#4752c4] transition flex items-center justify-center space-x-2">
+                    <i class="fa-brands fa-discord"></i>
+                    <span id="btn-copy-discord-text">Discord Teslim Şablonunu Kopyala</span>
+                </button>
+            </div>
+
+            <button onclick="closeCodeResultModal()" class="w-full py-2.5 rounded-xl font-mono text-xs text-gray-400 hover:text-white transition">
+                Pencereyi Kapat
+            </button>
         </div>
     </div>
 
@@ -637,7 +718,7 @@
                 }
 
                 // 4. Pins Status
-                loadPinsStatus();
+                loadPinsData();
 
             } catch (e) {
                 console.error("Data load error:", e);
@@ -986,14 +1067,153 @@
             }
         }
 
-        async function loadPinsStatus() {
+        let lastCreatedCode = "";
+        let lastCreatedType = "key";
+        let lastCreatedPlanLabel = "";
+
+        function openCodeResultModal(code, type = "key", planLabel = "Lifetime VIP") {
+            lastCreatedCode = code;
+            lastCreatedType = type;
+            lastCreatedPlanLabel = planLabel;
+
+            document.getElementById('result-modal-code').textContent = code;
+            if (type === "pin") {
+                document.getElementById('result-modal-title').textContent = "GÜVENLİK PIN'İ OLUŞTURULDU!";
+                document.getElementById('result-modal-subtitle').textContent = "Müşterinin doğrudan indirmesi için tek seferlik indirme PIN'i hazır:";
+                document.getElementById('btn-copy-code-text').textContent = "PIN'İ KOPYALA";
+            } else {
+                document.getElementById('result-modal-title').textContent = "LİSANS ANAHTARI OLUŞTURULDU!";
+                document.getElementById('result-modal-subtitle').textContent = "Sisteme kayıtlı orijinal lisans anahtarı başarıyla üretildi:";
+                document.getElementById('btn-copy-code-text').textContent = "LİSANS KODUNU KOPYALA";
+            }
+            document.getElementById('code-result-modal').classList.remove('hidden');
+        }
+
+        function closeCodeResultModal() {
+            document.getElementById('code-result-modal').classList.add('hidden');
+        }
+
+        function copyResultCodeOnly() {
+            if (!lastCreatedCode) return;
+            navigator.clipboard.writeText(lastCreatedCode).then(() => {
+                const btnText = document.getElementById('btn-copy-code-text');
+                btnText.textContent = "✓ KOPYALANDI!";
+                showToast("Panoya kopyalandı: " + lastCreatedCode);
+                setTimeout(() => {
+                    btnText.textContent = lastCreatedType === "pin" ? "PIN'İ KOPYALA" : "LİSANS KODUNU KOPYALA";
+                }, 2000);
+            });
+        }
+
+        function copyResultDiscordTemplate() {
+            if (!lastCreatedCode) return;
+            let msg = "";
+            if (lastCreatedType === "pin") {
+                msg = `Merhaba! NF Tweaks indirme PIN'iniz oluşturulmuştur:
+🔒 **PIN Kodunuz:** \`${lastCreatedCode}\`
+🌐 **İndirme Portalı:** https://nf-tweaks-1.onrender.com/download.html
+(Bu PIN ile 1 kez indirme yapabilirsiniz. İndirdiğinizde güvenlik gereği PIN kilitlenir.)`;
+            } else {
+                msg = `Merhaba! NF Tweaks lisans anahtarınız onaylanmıştır:
+🔑 **Lisans Kodunuz:** \`${lastCreatedCode}\`
+📦 **Paket:** ${lastCreatedPlanLabel}
+🌐 **İndirme Portalı:** https://nf-tweaks-1.onrender.com/download.html
+(Siteye girip kodunuzu yazarak tek seferlik indirme PIN'inizi oluşturabilir ve hemen indirebilirsiniz!)`;
+            }
+            navigator.clipboard.writeText(msg).then(() => {
+                const btnText = document.getElementById('btn-copy-discord-text');
+                btnText.textContent = "✓ Discord Mesajı Kopyalandı!";
+                showToast("Discord teslim mesajı panoya kopyalandı!");
+                setTimeout(() => {
+                    btnText.textContent = "Discord Teslim Şablonunu Kopyala";
+                }, 2000);
+            });
+        }
+
+        async function loadPinsData() {
+            const token = getToken();
+            if (!token) return;
             try {
-                const res = await fetch('/api/status');
+                const res = await fetch('/api/admin/pins', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
                 if (res.ok) {
                     const data = await res.json();
-                    document.getElementById('pins-count-badge').textContent = `${data.total_pins} PIN Mevcut`;
+                    const list = data.pins || [];
+                    document.getElementById('pins-count-badge').textContent = `${list.length} PIN Mevcut`;
+                    const container = document.getElementById('pins-list');
+                    if (list.length === 0) {
+                        container.innerHTML = `<div class="text-center py-8 text-gray-500">Henüz üretilmiş bir PIN bulunmuyor.</div>`;
+                        return;
+                    }
+
+                    container.innerHTML = list.map(p => {
+                        const isUsed = p.used || (p.download_count >= 1);
+                        const statusBadge = isUsed 
+                            ? `<span class="px-2.5 py-1 rounded bg-red-500/20 text-red-400 border border-red-500/30 text-[10px] font-bold">❌ KULLANILDI (YANMIŞ)</span>`
+                            : `<span class="px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold">✅ AKTİF (1 HAK)</span>`;
+
+                        return `
+                            <div class="bg-black/50 border border-white/10 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-white/20 transition font-mono">
+                                <div class="flex items-center space-x-4">
+                                    <div class="text-xl sm:text-2xl font-extrabold text-white tracking-widest bg-black/80 px-3.5 py-1.5 rounded-xl border border-white/10">
+                                        ${p.pin}
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-bold text-gray-200">${p.note || 'Özel PIN'}</div>
+                                        <div class="text-[10px] text-gray-400">Tarih: ${p.created_at || '-'} ${p.downloaded_at ? ' • İndirildi: ' + p.downloaded_at : ''}</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-3 self-end sm:self-auto">
+                                    ${statusBadge}
+                                    <button onclick="navigator.clipboard.writeText('${p.pin}'); showToast('PIN kopyalandı: ${p.pin}');" class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-emerald-500/20 hover:text-emerald-300 text-white font-mono text-xs flex items-center space-x-1.5 transition border border-white/10">
+                                        <i class="fa-regular fa-copy text-nfaccent"></i>
+                                        <span>Kopyala</span>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
                 }
-            } catch(e) {}
+            } catch (e) {
+                console.error("Pins fetch error:", e);
+            }
+        }
+
+        function openCreatePinModal() {
+            document.getElementById('create-pin-modal').classList.remove('hidden');
+        }
+
+        function closeCreatePinModal() {
+            document.getElementById('create-pin-modal').classList.add('hidden');
+        }
+
+        async function handleManualCreatePin(e) {
+            e.preventDefault();
+            const pin = document.getElementById('gen-custom-pin').value.trim();
+            const note = document.getElementById('gen-pin-note').value.trim();
+            const token = getToken();
+
+            try {
+                const res = await fetch('/api/admin/create-pin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ pin: pin, note: note })
+                });
+                const data = await res.json();
+                if (res.ok && data.status === 'success') {
+                    closeCreatePinModal();
+                    openCodeResultModal(data.pin, "pin");
+                    loadPinsData();
+                } else {
+                    showToast(data.message || 'PIN üretilemedi!', true);
+                }
+            } catch (err) {
+                showToast('Hata oluştu!', true);
+            }
         }
 
         // CREATE KEY MODAL
@@ -1023,7 +1243,7 @@
                 const data = await res.json();
                 if (res.ok && data.status === 'success') {
                     closeCreateKeyModal();
-                    showToast(`Lisans anahtarı üretildi: ${data.key}`);
+                    openCodeResultModal(data.key, "key", data.plan_label);
                     loadAllData();
                 } else {
                     showToast(data.message || 'Üretim başarısız!', true);
